@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Kingley Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #1f001d; --plum: #3f0537; --plum-dark: #260022;
+      --surface: #2a0526; --surface2: #350a30;
+      --border: rgba(237,173,249,0.14); --text: #fff8f3;
+      --text-muted: rgba(255,248,243,0.55); --text-dim: rgba(255,248,243,0.3);
+      --web: #74cff4; --ux: #f57a2f; --graphics: #ff6370;
+      --industrial: #fef549; --blog: #edadf9; --danger: #ff6370;
+      --success: #74cff4; --coral: #ff6370;
+      --font-display: 'Syne', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+      --font-body: 'DM Sans', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background:
+        radial-gradient(circle at 85% 10%, rgba(116,207,244,0.10), transparent 32%),
+        radial-gradient(circle at 10% 85%, rgba(255,99,112,0.10), transparent 36%),
+        linear-gradient(155deg, var(--plum) 0%, var(--plum-dark) 55%, var(--bg) 100%);
+      background-attachment: fixed;
+      color: var(--text); font-family: var(--font-body); min-height: 100vh;
+    }
+    ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; font: inherit; color: inherit; }
+
+    /* ─── Login Screen ── */
+    #loginScreen {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 40px;
+      background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(26,107,255,0.07) 0%, transparent 70%);
+    }
+    .login-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 48px; width: 100%; max-width: 400px;
+    }
+    .login-logo {
+      font-family: var(--font-display); font-size: 1.8rem; font-weight: 800;
+      letter-spacing: -0.03em; margin-bottom: 8px;
+    }
+    .login-logo span { color: var(--coral); }
+    .login-box p { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 32px; }
+    .login-box input {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 13px 16px; color: var(--text);
+      font-family: var(--font-mono); font-size: 0.9rem; margin-bottom: 12px; outline: none;
+      transition: border-color 0.2s;
+    }
+    .login-box input:focus { border-color: rgba(255,255,255,0.2); }
+    .btn { padding: 12px 24px; border-radius: 100px; font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.05em; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-prim { background: var(--text); color: var(--bg); border: none; width: 100%; justify-content: center; }
+    .btn-prim:hover { opacity: 0.85; }
+    .login-error { color: var(--danger); font-size: 0.8rem; font-family: var(--font-mono); margin-top: 8px; display: none; }
+
+    /* ─── Admin Shell ── */
+    #adminShell { display: none; min-height: 100vh; }
+    .admin-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(8,8,8,0.9); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .admin-header-left { display: flex; align-items: center; gap: 20px; }
+    .admin-brand { font-family: var(--font-display); font-weight: 800; font-size: 1rem; }
+    .admin-brand span { color: var(--web); }
+    .admin-badge {
+      padding: 3px 10px; border-radius: 100px;
+      background: rgba(26,107,255,0.15); border: 1px solid rgba(26,107,255,0.3);
+      font-family: var(--font-mono); font-size: 0.65rem; color: var(--web);
+      letter-spacing: 0.1em;
+    }
+    .btn-ghost { padding: 8px 16px; border: 1px solid var(--border); border-radius: 100px; font-family: var(--font-mono); font-size: 0.72rem; transition: all 0.2s; }
+    .btn-ghost:hover { background: rgba(255,255,255,0.06); }
+    .admin-layout { display: flex; min-height: calc(100vh - 60px); }
+    .admin-sidebar {
+      width: 220px; flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      padding: 24px 16px;
+      position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto;
+    }
+    .sidebar-section { margin-bottom: 28px; }
+    .sidebar-label {
+      font-family: var(--font-mono); font-size: 0.6rem;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--text-dim); padding: 0 12px; margin-bottom: 8px;
+    }
+    .sidebar-btn {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; padding: 10px 12px; border-radius: 8px;
+      font-size: 0.85rem; text-align: left;
+      transition: background 0.15s, color 0.15s;
+      color: var(--text-muted); background: none; border: none;
+    }
+    .sidebar-btn:hover, .sidebar-btn.active { background: var(--surface2); color: var(--text); }
+    .sidebar-btn .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .admin-content { flex: 1; padding: 32px; overflow-x: hidden; }
+
+    /* ─── Tabs ── */
+    .tab { display: none; } .tab.active { display: block; }
+
+    /* ─── Section Headers ── */
+    .content-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    .content-title { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+    .btn-add { padding: 10px 20px; background: var(--web); color: #fff; border-radius: 100px; font-family: var(--font-mono); font-size: 0.75rem; transition: opacity 0.2s; }
+    .btn-add:hover { opacity: 0.85; }
+
+    /* ─── Stats Row ── */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; margin-bottom: 36px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+    .stat-card .n { font-family: var(--font-display); font-size: 2rem; font-weight: 800; line-height: 1; }
+    .stat-card .l { font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 4px; }
+
+    /* ─── Projects Table ── */
+    .projects-table { width: 100%; border-collapse: collapse; }
+    .projects-table th {
+      text-align: left; font-family: var(--font-mono); font-size: 0.65rem;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim);
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+    }
+    .projects-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 0.88rem; vertical-align: middle; }
+    .projects-table tr:last-child td { border-bottom: none; }
+    .projects-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .cat-badge {
+      padding: 3px 10px; border-radius: 100px; font-family: var(--font-mono); font-size: 0.65rem;
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .cat-badge.webdev { background: rgba(26,107,255,0.15); color: var(--web); }
+    .cat-badge.uiux { background: rgba(245,166,35,0.15); color: var(--ux); }
+    .cat-badge.graphics { background: rgba(255,61,87,0.15); color: var(--graphics); }
+    .cat-badge.industrial { background: rgba(82,183,136,0.15); color: var(--industrial); }
+    .cat-badge.blog { background: rgba(167,139,250,0.15); color: var(--blog); }
+    .project-thumb { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; background: var(--surface2); }
+    .table-actions { display: flex; gap: 8px; }
+    .btn-sm { padding: 5px 12px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.68rem; transition: all 0.15s; }
+    .btn-edit { background: rgba(255,255,255,0.06); border: 1px solid var(--border); }
+    .btn-edit:hover { background: rgba(255,255,255,0.12); }
+    .btn-del { background: rgba(255,61,87,0.1); border: 1px solid rgba(255,61,87,0.2); color: var(--danger); }
+    .btn-del:hover { background: rgba(255,61,87,0.2); }
+    .feat-toggle {
+      width: 32px; height: 18px; border-radius: 100px;
+      background: var(--surface2); border: 1px solid var(--border);
+      position: relative; cursor: pointer; transition: background 0.2s;
+    }
+    .feat-toggle.on { background: var(--web); border-color: var(--web); }
+    .feat-toggle::after {
+      content: ''; position: absolute; top: 2px; left: 2px;
+      width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.5);
+      transition: left 0.2s, background 0.2s;
+    }
+    .feat-toggle.on::after { left: 16px; background: #fff; }
+
+    /* ─── Form Modal ── */
+    .form-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+      z-index: 500; display: none; align-items: center; justify-content: center; padding: 24px;
+    }
+    .form-overlay.open { display: flex; }
+    .form-panel {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+      width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto;
+      padding: 36px; animation: panelIn 0.35s cubic-bezier(0.4,0,0.2,1);
+    }
+    @keyframes panelIn { from { opacity: 0; transform: scale(0.96) translateY(16px); } to { opacity: 1; transform: none; } }
+    .form-panel h3 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; margin-bottom: 24px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-full { grid-column: 1 / -1; }
+    .field label { display: block; font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+    .field input, .field textarea, .field select {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 11px 14px; color: var(--text);
+      font-family: var(--font-body); font-size: 0.88rem; outline: none; transition: border-color 0.2s;
+    }
+    .field input:focus, .field textarea:focus, .field select:focus { border-color: rgba(255,255,255,0.2); }
+    .field textarea { height: 90px; resize: none; }
+    .field select option { background: var(--surface2); }
+    .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+    .btn-cancel { padding: 10px 22px; border: 1px solid var(--border); border-radius: 100px; font-family: var(--font-mono); font-size: 0.75rem; transition: all 0.2s; }
+    .btn-cancel:hover { background: rgba(255,255,255,0.05); }
+    .btn-save { padding: 10px 22px; background: var(--web); color: #fff; border-radius: 100px; font-family: var(--font-mono); font-size: 0.75rem; border: none; transition: opacity 0.2s; }
+    .btn-save:hover { opacity: 0.85; }
+
+    /* ─── Upload Zone ── */
+    .upload-zone {
+      border: 2px dashed var(--border); border-radius: 14px;
+      padding: 40px; text-align: center; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .upload-zone:hover, .upload-zone.drag { border-color: rgba(26,107,255,0.4); background: rgba(26,107,255,0.04); }
+    .upload-zone p { color: var(--text-muted); font-size: 0.88rem; margin-top: 12px; }
+    .upload-zone span { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-dim); }
+    .upload-icon { font-size: 2.5rem; opacity: 0.4; }
+    .upload-preview { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .upload-thumb {
+      width: 80px; height: 80px; border-radius: 8px;
+      object-fit: cover; border: 1px solid var(--border);
+    }
+    .upload-progress { margin-top: 16px; display: none; }
+    .progress-bar { height: 4px; background: var(--surface2); border-radius: 100px; overflow: hidden; margin-top: 8px; }
+    .progress-fill { height: 100%; background: var(--web); width: 0; transition: width 0.3s; border-radius: 100px; }
+
+    /* ─── Reviews Tab ── */
+    .review-row { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; margin-bottom: 10px; display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+    .review-row-info { flex: 1; }
+    .review-row-name { font-weight: 500; font-size: 0.9rem; }
+    .review-row-project { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-dim); margin-bottom: 6px; }
+    .review-row-text { font-size: 0.85rem; color: var(--text-muted); }
+    .review-row-stars { font-size: 0.8rem; margin-top: 4px; }
+
+    /* ─── CV Upload ── */
+    .cv-status { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; }
+    .cv-icon { font-size: 1.5rem; }
+    .cv-name { font-size: 0.9rem; }
+    .cv-date { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-dim); }
+
+    /* ─── Toast ── */
+    .toast {
+      position: fixed; bottom: 32px; right: 32px; z-index: 9999;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 20px;
+      font-family: var(--font-mono); font-size: 0.78rem;
+      transform: translateY(20px); opacity: 0;
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+      max-width: 280px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { border-color: rgba(82,183,136,0.4); color: var(--success); }
+    .toast.error { border-color: rgba(255,61,87,0.4); color: var(--danger); }
+
+    .empty-msg { color: var(--text-dim); font-family: var(--font-mono); font-size: 0.8rem; padding: 40px 0; text-align: center; }
+  </style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">K<span>.</span>C Admin</div>
+    <p>Portfolio management panel. Enter your admin password to continue.</p>
+    <input type="password" id="passwordInput" placeholder="Admin password" autocomplete="current-password">
+    <button class="btn btn-prim" id="loginBtn">Unlock Panel</button>
+    <div class="login-error" id="loginError">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<!-- Admin Shell -->
+<div id="adminShell">
+  <header class="admin-header">
+    <div class="admin-header-left">
+      <div class="admin-brand">K<span>.</span>C</div>
+      <span class="admin-badge">ADMIN</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <a href="/" target="_blank" class="btn-ghost btn">View Site →</a>
+      <button class="btn-ghost btn" id="logoutBtn">Log out</button>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Overview</div>
+        <button class="sidebar-btn active" data-tab="dashboard">
+          <span>📊</span> Dashboard
+        </button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Sections</div>
+        <button class="sidebar-btn" data-tab="projects-webdev">
+          <span class="dot" style="background:var(--web)"></span> Web Dev
+        </button>
+        <button class="sidebar-btn" data-tab="projects-uiux">
+          <span class="dot" style="background:var(--ux)"></span> UI/UX
+        </button>
+        <button class="sidebar-btn" data-tab="projects-graphics">
+          <span class="dot" style="background:var(--graphics)"></span> Graphics
+        </button>
+        <button class="sidebar-btn" data-tab="projects-industrial">
+          <span class="dot" style="background:var(--industrial)"></span> Industrial
+        </button>
+        <button class="sidebar-btn" data-tab="projects-blog">
+          <span class="dot" style="background:var(--blog)"></span> Blog
+        </button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Content</div>
+        <button class="sidebar-btn" data-tab="upload">
+          <span>📁</span> Upload Media
+        </button>
+        <button class="sidebar-btn" data-tab="cv">
+          <span>📄</span> CV / Resume
+        </button>
+        <button class="sidebar-btn" data-tab="reviews">
+          <span>💬</span> Reviews
+        </button>
+      </div>
+    </aside>
+
+    <!-- Content -->
+    <main class="admin-content">
+
+      <!-- Dashboard -->
+      <div class="tab active" id="tab-dashboard">
+        <div class="content-header">
+          <h2 class="content-title">Dashboard</h2>
+        </div>
+        <div class="stats-row" id="dashStats">
+          <div class="stat-card"><div class="n" id="statTotal" style="color:var(--web)">—</div><div class="l">Total Projects</div></div>
+          <div class="stat-card"><div class="n" id="statWebdev" style="color:var(--web)">—</div><div class="l">Web Dev</div></div>
+          <div class="stat-card"><div class="n" id="statUiux" style="color:var(--ux)">—</div><div class="l">UI / UX</div></div>
+          <div class="stat-card"><div class="n" id="statGraphics" style="color:var(--graphics)">—</div><div class="l">Graphics</div></div>
+          <div class="stat-card"><div class="n" id="statIndustrial" style="color:var(--industrial)">—</div><div class="l">Industrial</div></div>
+          <div class="stat-card"><div class="n" id="statBlog" style="color:var(--blog)">—</div><div class="l">Blog</div></div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;">
+          <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:16px;">Quick Actions</h3>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <button class="btn btn-prim" style="background:var(--web);color:#fff;" onclick="openNewProject('webdev')">+ Web Dev Project</button>
+            <button class="btn btn-prim" style="background:var(--ux);color:#fff;" onclick="openNewProject('uiux')">+ UI/UX Project</button>
+            <button class="btn btn-prim" style="background:var(--graphics);color:#fff;" onclick="openNewProject('graphics')">+ Graphics Project</button>
+            <button class="btn btn-prim" style="background:var(--industrial);color:#fff;" onclick="openNewProject('industrial')">+ Industrial Project</button>
+            <button class="btn btn-prim" style="background:var(--blog);color:#fff;" onclick="openNewProject('blog')">+ Blog Post</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projects tabs (one per category) -->
+      <div class="tab" id="tab-projects-webdev"><div class="content-header"><h2 class="content-title">Web Dev Projects</h2><button class="btn-add btn" onclick="openNewProject('webdev')">+ Add Project</button></div><div id="table-webdev"></div></div>
+      <div class="tab" id="tab-projects-uiux"><div class="content-header"><h2 class="content-title">UI/UX Projects</h2><button class="btn-add btn" onclick="openNewProject('uiux')">+ Add Project</button></div><div id="table-uiux"></div></div>
+      <div class="tab" id="tab-projects-graphics"><div class="content-header"><h2 class="content-title">Graphics Projects</h2><button class="btn-add btn" onclick="openNewProject('graphics')">+ Add Project</button></div><div id="table-graphics"></div></div>
+      <div class="tab" id="tab-projects-industrial"><div class="content-header"><h2 class="content-title">Industrial Design</h2><button class="btn-add btn" onclick="openNewProject('industrial')">+ Add Project</button></div><div id="table-industrial"></div></div>
+      <div class="tab" id="tab-projects-blog"><div class="content-header"><h2 class="content-title">Blog Posts</h2><button class="btn-add btn" onclick="openNewProject('blog')">+ Add Post</button></div><div id="table-blog"></div></div>
+
+      <!-- Upload Media -->
+      <div class="tab" id="tab-upload">
+        <div class="content-header"><h2 class="content-title">Upload Media</h2></div>
+        <div style="margin-bottom:20px;" class="field">
+          <label>Attach to Project (optional)</label>
+          <select id="uploadProjectSelect"><option value="">— None (just upload) —</option></select>
+        </div>
+        <div class="upload-zone" id="uploadZone">
+          <div class="upload-icon">☁️</div>
+          <p>Drag & drop images or videos here</p>
+          <span>Supports: JPG, PNG, WebP, SVG, MP4, WebM, MOV — max 50MB each</span>
+          <br><br>
+          <button class="btn btn-ghost" onclick="document.getElementById('fileInput').click()">Browse Files</button>
+          <input type="file" id="fileInput" multiple accept="image/*,video/*" style="display:none">
+        </div>
+        <div class="upload-progress" id="uploadProgress">
+          <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);" id="uploadStatus">Uploading...</div>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+        <div class="upload-preview" id="uploadPreview"></div>
+        <div style="margin-top:24px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;">
+          <h4 style="font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px;">Uploaded Files</h4>
+          <div id="allUploads"><div class="empty-msg">Files uploaded here will appear in your project media grids.</div></div>
+        </div>
+      </div>
+
+      <!-- CV -->
+      <div class="tab" id="tab-cv">
+        <div class="content-header"><h2 class="content-title">CV / Resume</h2></div>
+        <div id="cvStatus" class="cv-status">
+          <div class="cv-icon">📄</div>
+          <div>
+            <div class="cv-name" id="cvFileName">No CV uploaded yet</div>
+            <div class="cv-date" id="cvFileDate">Upload your CV below</div>
+          </div>
+        </div>
+        <div class="upload-zone" id="cvUploadZone">
+          <div class="upload-icon">📄</div>
+          <p>Upload your CV / Resume as PDF</p>
+          <span>PDF format — will replace current CV for download button</span>
+          <br><br>
+          <button class="btn btn-ghost" onclick="document.getElementById('cvFileInput').click()">Select PDF</button>
+          <input type="file" id="cvFileInput" accept=".pdf" style="display:none">
+        </div>
+      </div>
+
+      <!-- Reviews -->
+      <div class="tab" id="tab-reviews">
+        <div class="content-header"><h2 class="content-title">Reviews & Feedback</h2></div>
+        <div id="reviewsList"><div class="empty-msg">Loading reviews...</div></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Project Form -->
+<div class="form-overlay" id="projectFormOverlay">
+  <div class="form-panel">
+    <h3 id="formTitle">Add Project</h3>
+    <div class="form-grid">
+      <div class="field">
+        <label>Project Title *</label>
+        <input type="text" id="fTitle" placeholder="e.g. FlexStaff">
+      </div>
+      <div class="field">
+        <label>Subtitle</label>
+        <input type="text" id="fSubtitle" placeholder="e.g. UK Staffing Platform">
+      </div>
+      <div class="field">
+        <label>Category *</label>
+        <select id="fCategory">
+          <option value="webdev">Web Development</option>
+          <option value="uiux">UI/UX</option>
+          <option value="graphics">Graphics & Brand</option>
+          <option value="industrial">Industrial Design</option>
+          <option value="blog">Blog & Lab</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Year</label>
+        <input type="text" id="fYear" placeholder="2024">
+      </div>
+      <div class="field form-full">
+        <label>Description *</label>
+        <textarea id="fDesc" placeholder="Describe the project..."></textarea>
+      </div>
+      <div class="field form-full">
+        <label>Tags (comma separated)</label>
+        <input type="text" id="fTags" placeholder="React, Figma, Node.js">
+      </div>
+      <div class="field form-full">
+        <label>Project URL</label>
+        <input type="url" id="fLink" placeholder="https://...">
+      </div>
+      <div class="field form-full">
+        <label>Thumbnail URL (or upload via Media tab)</label>
+        <input type="text" id="fThumbnail" placeholder="/uploads/...">
+      </div>
+      <div class="field form-full">
+        <label>Colour Palette (hex codes, comma separated)</label>
+        <input type="text" id="fColors" placeholder="#FF3D57, #1A1A1A, #FFFFFF">
+      </div>
+      <div class="field" style="display:flex;align-items:center;gap:12px;">
+        <label style="margin-bottom:0;">Featured</label>
+        <div class="feat-toggle" id="fFeatured" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel btn" id="formCancel">Cancel</button>
+      <button class="btn-save btn" id="formSave">Save Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const ADMIN_KEY_STORE = 'portfolio_admin_key';
+  let adminKey = localStorage.getItem(ADMIN_KEY_STORE) || '';
+  let editingProjectId = null;
+  let allProjects = [];
+
+  // ─── Login ─────────────────────────────────────────────────────────────────
+  function tryLogin() {
+    const pw = document.getElementById('passwordInput').value;
+    if (!pw) return;
+    adminKey = pw;
+    fetch('/api/projects', { headers: { 'x-admin-key': adminKey } })
+      .then(r => {
+        if (r.ok) { localStorage.setItem(ADMIN_KEY_STORE, adminKey); showAdmin(); }
+        else { document.getElementById('loginError').style.display = 'block'; }
+      }).catch(() => { document.getElementById('loginError').style.display = 'block'; });
+  }
+
+  document.getElementById('loginBtn').addEventListener('click', tryLogin);
+  document.getElementById('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+
+  // Auto-login if key stored
+  if (adminKey) {
+    fetch('/api/projects', { headers: { 'x-admin-key': adminKey } })
+      .then(r => { if (r.ok) showAdmin(); })
+      .catch(() => {});
+  }
+
+  function showAdmin() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminShell').style.display = 'block';
+    loadDashboard();
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem(ADMIN_KEY_STORE);
+    adminKey = '';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('adminShell').style.display = 'none';
+    document.getElementById('passwordInput').value = '';
+  });
+
+  // ─── Tabs ──────────────────────────────────────────────────────────────────
+  document.querySelectorAll('.sidebar-btn[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = document.getElementById('tab-' + btn.dataset.tab);
+      if (tab) {
+        tab.classList.add('active');
+        // Lazy load
+        const cat = btn.dataset.tab.replace('projects-', '');
+        if (btn.dataset.tab.startsWith('projects-')) loadCategoryTable(cat);
+        if (btn.dataset.tab === 'reviews') loadAllReviews();
+        if (btn.dataset.tab === 'cv') loadCVStatus();
+        if (btn.dataset.tab === 'upload') loadUploadProjectList();
+      }
+    });
+  });
+
+  // ─── API helpers ──────────────────────────────────────────────────────────
+  async function api(path, method = 'GET', body = null) {
+    const opts = { method, headers: { 'x-admin-key': adminKey } };
+    if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+    const r = await fetch(path, opts);
+    return r.json();
+  }
+
+  // ─── Toast ────────────────────────────────────────────────────────────────
+  function toast(msg, type = 'success') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `toast ${type} show`;
+    setTimeout(() => el.classList.remove('show'), 3000);
+  }
+
+  // ─── Dashboard ────────────────────────────────────────────────────────────
+  async function loadDashboard() {
+    const data = await api('/api/projects');
+    allProjects = data.projects || [];
+    const cats = ['webdev', 'uiux', 'graphics', 'industrial', 'blog'];
+    document.getElementById('statTotal').textContent = allProjects.length;
+    cats.forEach(c => {
+      const el = document.getElementById('stat' + c.charAt(0).toUpperCase() + c.slice(1));
+      if (el) el.textContent = allProjects.filter(p => p.category === c).length;
+    });
+  }
+
+  // ─── Project Tables ───────────────────────────────────────────────────────
+  async function loadCategoryTable(category) {
+    const el = document.getElementById('table-' + category);
+    el.innerHTML = '<div class="empty-msg">Loading...</div>';
+    const data = await api('/api/projects?category=' + category);
+    const projects = data.projects || [];
+    allProjects = [...allProjects.filter(p => p.category !== category), ...projects];
+    if (!projects.length) { el.innerHTML = '<div class="empty-msg">No projects yet. Add your first one!</div>'; return; }
+    el.innerHTML = `
+      <table class="projects-table">
+        <thead><tr>
+          <th>Thumb</th><th>Title</th><th>Year</th><th>Featured</th><th>Likes</th><th>Actions</th>
+        </tr></thead>
+        <tbody>
+          ${projects.map(p => `
+            <tr>
+              <td><img src="${p.thumbnail && !p.thumbnail.includes('placeholder') ? p.thumbnail : ''}" class="project-thumb" onerror="this.style.background='var(--surface2)';this.src='';" alt=""></td>
+              <td>
+                <div style="font-weight:500">${p.title}</div>
+                <div style="font-size:0.75rem;color:var(--text-dim)">${p.subtitle || ''}</div>
+              </td>
+              <td><span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-dim)">${p.year || '—'}</span></td>
+              <td><div class="feat-toggle ${p.featured ? 'on' : ''}" data-id="${p.id}" onclick="toggleFeatured(this)"></div></td>
+              <td><span style="font-family:var(--font-mono);font-size:0.8rem">${p.likeCount || 0}</span></td>
+              <td>
+                <div class="table-actions">
+                  <button class="btn-sm btn-edit btn" onclick="editProject('${p.id}')">Edit</button>
+                  <button class="btn-sm btn-del btn" onclick="deleteProject('${p.id}')">Delete</button>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+
+  async function toggleFeatured(el) {
+    const id = el.dataset.id;
+    const project = allProjects.find(p => p.id === id);
+    if (!project) return;
+    const newVal = !el.classList.contains('on');
+    el.classList.toggle('on', newVal);
+    await api('/api/projects/' + id, 'PUT', { ...project, featured: newVal });
+    toast(newVal ? 'Marked as featured' : 'Removed from featured');
+  }
+
+  async function deleteProject(id) {
+    if (!confirm('Delete this project? This cannot be undone.')) return;
+    await api('/api/projects/' + id, 'DELETE');
+    toast('Project deleted');
+    loadDashboard();
+    // Reload visible table
+    const cat = allProjects.find(p => p.id === id)?.category;
+    if (cat) loadCategoryTable(cat);
+  }
+
+  function editProject(id) {
+    const project = allProjects.find(p => p.id === id);
+    if (!project) return;
+    editingProjectId = id;
+    document.getElementById('formTitle').textContent = 'Edit Project';
+    document.getElementById('fTitle').value = project.title || '';
+    document.getElementById('fSubtitle').value = project.subtitle || '';
+    document.getElementById('fCategory').value = project.category || 'webdev';
+    document.getElementById('fYear').value = project.year || '';
+    document.getElementById('fDesc').value = project.description || '';
+    document.getElementById('fTags').value = (project.tags || []).join(', ');
+    document.getElementById('fLink').value = project.link || '';
+    document.getElementById('fThumbnail').value = project.thumbnail || '';
+    document.getElementById('fColors').value = (project.colors || []).join(', ');
+    document.getElementById('fFeatured').classList.toggle('on', !!project.featured);
+    document.getElementById('projectFormOverlay').classList.add('open');
+  }
+
+  function openNewProject(category) {
+    editingProjectId = null;
+    document.getElementById('formTitle').textContent = 'Add New Project';
+    document.getElementById('fTitle').value = '';
+    document.getElementById('fSubtitle').value = '';
+    document.getElementById('fCategory').value = category || 'webdev';
+    document.getElementById('fYear').value = new Date().getFullYear();
+    document.getElementById('fDesc').value = '';
+    document.getElementById('fTags').value = '';
+    document.getElementById('fLink').value = '';
+    document.getElementById('fThumbnail').value = '';
+    document.getElementById('fColors').value = '';
+    document.getElementById('fFeatured').classList.remove('on');
+    document.getElementById('projectFormOverlay').classList.add('open');
+    // Switch to matching tab
+    const tabBtn = document.querySelector(`.sidebar-btn[data-tab="projects-${category}"]`);
+    if (tabBtn) tabBtn.click();
+  }
+
+  document.getElementById('formCancel').addEventListener('click', () => {
+    document.getElementById('projectFormOverlay').classList.remove('open');
+  });
+
+  document.getElementById('formSave').addEventListener('click', async () => {
+    const title = document.getElementById('fTitle').value.trim();
+    const desc = document.getElementById('fDesc').value.trim();
+    if (!title || !desc) { toast('Title and description are required.', 'error'); return; }
+    const payload = {
+      title,
+      subtitle: document.getElementById('fSubtitle').value.trim(),
+      category: document.getElementById('fCategory').value,
+      year: document.getElementById('fYear').value,
+      description: desc,
+      tags: document.getElementById('fTags').value.split(',').map(t => t.trim()).filter(Boolean),
+      link: document.getElementById('fLink').value.trim(),
+      thumbnail: document.getElementById('fThumbnail').value.trim(),
+      colors: document.getElementById('fColors').value.split(',').map(c => c.trim()).filter(Boolean),
+      featured: document.getElementById('fFeatured').classList.contains('on')
+    };
+    const btn = document.getElementById('formSave');
+    btn.textContent = 'Saving...';
+    try {
+      if (editingProjectId) {
+        await api('/api/projects/' + editingProjectId, 'PUT', payload);
+        toast('Project updated ✓');
+      } else {
+        await api('/api/projects', 'POST', payload);
+        toast('Project added ✓');
+      }
+      document.getElementById('projectFormOverlay').classList.remove('open');
+      loadDashboard();
+      loadCategoryTable(payload.category);
+    } catch(e) { toast('Save failed', 'error'); }
+    btn.textContent = 'Save Project';
+  });
+
+  // ─── Upload ───────────────────────────────────────────────────────────────
+  async function loadUploadProjectList() {
+    const sel = document.getElementById('uploadProjectSelect');
+    const data = await api('/api/projects');
+    allProjects = data.projects || [];
+    sel.innerHTML = '<option value="">— None —</option>' + allProjects.map(p =>
+      `<option value="${p.id}">[${p.category}] ${p.title}</option>`
+    ).join('');
+  }
+
+  async function handleFiles(files) {
+    if (!files.length) return;
+    const formData = new FormData();
+    Array.from(files).forEach(f => formData.append('files', f));
+    const projectId = document.getElementById('uploadProjectSelect').value;
+    if (projectId) formData.append('projectId', projectId);
+
+    const progress = document.getElementById('uploadProgress');
+    const fill = document.getElementById('progressFill');
+    const status = document.getElementById('uploadStatus');
+    progress.style.display = 'block'; fill.style.width = '10%';
+    status.textContent = `Uploading ${files.length} file(s)...`;
+
+    try {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/upload');
+      xhr.setRequestHeader('x-admin-key', adminKey);
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) fill.style.width = ((e.loaded / e.total) * 90 + 10) + '%';
+      };
+      xhr.onload = () => {
+        fill.style.width = '100%';
+        const data = JSON.parse(xhr.responseText);
+        status.textContent = `${data.files.length} file(s) uploaded!`;
+        const preview = document.getElementById('uploadPreview');
+        data.files.forEach(f => {
+          const isVideo = /\.(mp4|webm|mov)$/i.test(f.url);
+          if (isVideo) {
+            const v = document.createElement('video');
+            v.src = f.url; v.className = 'upload-thumb'; v.muted = true; v.loop = true; v.autoplay = true;
+            preview.prepend(v);
+          } else {
+            const img = document.createElement('img');
+            img.src = f.url; img.className = 'upload-thumb'; img.alt = f.name;
+            preview.prepend(img);
+          }
+        });
+        toast(`${data.files.length} file(s) uploaded ✓`);
+        setTimeout(() => { progress.style.display = 'none'; fill.style.width = '0'; }, 2000);
+        if (projectId) loadCategoryTable(allProjects.find(p => p.id === projectId)?.category);
+      };
+      xhr.onerror = () => { toast('Upload failed', 'error'); progress.style.display = 'none'; };
+      xhr.send(formData);
+    } catch(e) { toast('Upload error', 'error'); }
+  }
+
+  const zone = document.getElementById('uploadZone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+  zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag'); handleFiles(e.dataTransfer.files); });
+  document.getElementById('fileInput').addEventListener('change', e => handleFiles(e.target.files));
+
+  // ─── CV Upload ────────────────────────────────────────────────────────────
+  async function loadCVStatus() {
+    const data = await api('/api/cv');
+    if (data.path) {
+      document.getElementById('cvFileName').textContent = data.path.split('/').pop();
+      document.getElementById('cvFileDate').textContent = data.uploadedAt ? 'Uploaded ' + new Date(data.uploadedAt).toLocaleDateString() : 'CV is live';
+    }
+  }
+
+  const cvZone = document.getElementById('cvUploadZone');
+  cvZone.addEventListener('dragover', e => { e.preventDefault(); cvZone.classList.add('drag'); });
+  cvZone.addEventListener('dragleave', () => cvZone.classList.remove('drag'));
+  cvZone.addEventListener('drop', e => { e.preventDefault(); cvZone.classList.remove('drag'); uploadCV(e.dataTransfer.files[0]); });
+  document.getElementById('cvFileInput').addEventListener('change', e => uploadCV(e.target.files[0]));
+
+  async function uploadCV(file) {
+    if (!file || !file.name.endsWith('.pdf')) { toast('Please upload a PDF file', 'error'); return; }
+    const formData = new FormData();
+    formData.append('cv', file);
+    const r = await fetch('/api/upload-cv', { method: 'POST', headers: { 'x-admin-key': adminKey }, body: formData });
+    const data = await r.json();
+    toast('CV updated ✓');
+    document.getElementById('cvFileName').textContent = file.name;
+    document.getElementById('cvFileDate').textContent = 'Uploaded just now';
+  }
+
+  // ─── Reviews ─────────────────────────────────────────────────────────────
+  async function loadAllReviews() {
+    const el = document.getElementById('reviewsList');
+    el.innerHTML = '<div class="empty-msg">Loading...</div>';
+    const data = await api('/api/admin/reviews');
+    const reviews = data.reviews || [];
+    if (!reviews.length) { el.innerHTML = '<div class="empty-msg">No reviews yet.</div>'; return; }
+    el.innerHTML = reviews.reverse().map(r => {
+      const project = allProjects.find(p => p.id === r.projectId);
+      return `
+        <div class="review-row">
+          <div class="review-row-info">
+            <div class="review-row-project">${project ? '[' + project.category + '] ' + project.title : r.projectId}</div>
+            <div class="review-row-name">${escH(r.name)} <span class="review-row-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span></div>
+            <div class="review-row-text">${escH(r.message)}</div>
+            <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--text-dim);margin-top:6px;">${new Date(r.createdAt).toLocaleString()}</div>
+          </div>
+          <button class="btn-sm btn-del btn" onclick="deleteReview('${r.id}')">Delete</button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function deleteReview(id) {
+    if (!confirm('Delete this review?')) return;
+    await api('/api/reviews/' + id, 'DELETE');
+    toast('Review deleted');
+    loadAllReviews();
+  }
+
+  function escH(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>
