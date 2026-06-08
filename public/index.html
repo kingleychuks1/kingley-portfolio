@@ -5,8 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kingley Chukwudume — Designer & Developer</title>
   <meta name="description" content="Kingley Chukwudume — UI/UX Designer, Full-Stack Developer, Industrial Designer & Creative Technologist based in London.">
-  <meta name="og:title" content="Kingley Chukwudume — Portfolio">
-  <meta name="og:image" content="/assets/images/og.png">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Kingley Chukwudume — Designer & Developer">
+  <meta property="og:description" content="UI/UX · Full-Stack Development · Graphics · Industrial Design. A London-based creative technologist. Available for contracts & collaborations.">
+  <meta property="og:image" content="/assets/images/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Kingley Chukwudume — Designer & Developer">
+  <meta name="twitter:description" content="UI/UX · Full-Stack Development · Graphics · Industrial Design. A London-based creative technologist.">
+  <meta name="twitter:image" content="/assets/images/og.png">
+
+  <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
@@ -537,6 +551,148 @@
     }
     #blog .section-label { color: var(--blog); }
 
+    /* ─── Testimonials Section ───────────────────────────────────────────── */
+    #testimonials {
+      background: transparent;
+      position: relative;
+    }
+    #testimonials::before {
+      content: '"';
+      position: absolute; top: 20px; left: 40px;
+      font-family: var(--font-display); font-size: 28vw; font-weight: 800;
+      color: transparent; -webkit-text-stroke: 1px rgba(254,245,73,0.08);
+      line-height: 0.8; pointer-events: none; user-select: none;
+    }
+    #testimonials .section-label { color: var(--yellow); }
+    .testimonials-track {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+    .testimonial-card {
+      background: rgba(53,10,48,0.5);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      position: relative;
+      transition: transform 0.4s var(--transition), border-color 0.3s;
+    }
+    .testimonial-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(254,245,73,0.3);
+    }
+    .testimonial-quote-mark {
+      font-family: var(--font-display);
+      font-size: 3rem; font-weight: 800;
+      line-height: 0.6; color: var(--yellow);
+      opacity: 0.4; margin-bottom: 8px;
+    }
+    .testimonial-text {
+      font-size: 1rem; line-height: 1.7;
+      color: var(--text); margin-bottom: 24px;
+    }
+    .testimonial-author {
+      display: flex; align-items: center; gap: 14px;
+      padding-top: 20px; border-top: 1px solid var(--border);
+    }
+    .testimonial-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--coral), var(--orange));
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-weight: 700; font-size: 1rem;
+      color: var(--bg); flex-shrink: 0;
+      object-fit: cover;
+    }
+    .testimonial-name { font-weight: 600; font-size: 0.92rem; }
+    .testimonial-role {
+      font-size: 0.78rem; color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+    .testimonial-stars { color: var(--yellow); font-size: 0.85rem; margin-bottom: 14px; }
+
+    /* ─── Services / Rates Section ───────────────────────────────────────── */
+    #services {
+      background: linear-gradient(180deg, transparent 0%, rgba(116,207,244,0.05) 50%, transparent 100%);
+      position: relative;
+    }
+    #services::before {
+      content: 'WORK';
+      position: absolute; top: 60px; right: 40px;
+      font-family: var(--font-display); font-size: 16vw; font-weight: 800;
+      color: transparent; -webkit-text-stroke: 1px rgba(116,207,244,0.07);
+      line-height: 1; pointer-events: none; user-select: none;
+    }
+    #services .section-label { color: var(--sky); }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .service-card {
+      background: rgba(53,10,48,0.5);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      display: flex; flex-direction: column;
+      position: relative; overflow: hidden;
+      transition: transform 0.4s var(--transition), border-color 0.3s;
+    }
+    .service-card:hover { transform: translateY(-6px); border-color: rgba(116,207,244,0.3); }
+    .service-card.featured-plan {
+      border-color: rgba(255,99,112,0.4);
+      background: rgba(63,5,55,0.65);
+    }
+    .service-badge {
+      position: absolute; top: 18px; right: 18px;
+      padding: 4px 12px; border-radius: 100px;
+      background: var(--coral); color: var(--bg);
+      font-family: var(--font-mono); font-size: 0.6rem;
+      letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700;
+    }
+    .service-icon { font-size: 1.8rem; margin-bottom: 18px; }
+    .service-name {
+      font-family: var(--font-display); font-size: 1.4rem;
+      font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px;
+    }
+    .service-desc {
+      font-size: 0.9rem; color: var(--text-muted);
+      line-height: 1.6; margin-bottom: 22px;
+    }
+    .service-price {
+      font-family: var(--font-display); font-weight: 800;
+      font-size: 1.6rem; letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+    .service-price span { font-size: 0.8rem; color: var(--text-muted); font-weight: 400; font-family: var(--font-mono); }
+    .service-features {
+      list-style: none; margin: 20px 0 24px; padding: 0;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .service-features li {
+      font-size: 0.85rem; color: var(--text-muted);
+      display: flex; align-items: flex-start; gap: 10px; line-height: 1.5;
+    }
+    .service-features li::before {
+      content: '→'; color: var(--sky); flex-shrink: 0; margin-top: 1px;
+    }
+    .service-cta {
+      margin-top: auto;
+      padding: 11px 0; text-align: center;
+      border: 1px solid var(--border); border-radius: 100px;
+      font-family: var(--font-mono); font-size: 0.78rem;
+      letter-spacing: 0.05em; transition: all 0.3s var(--transition);
+    }
+    .service-cta:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.2); }
+    .featured-plan .service-cta { background: var(--coral); color: var(--bg); border-color: var(--coral); }
+    .featured-plan .service-cta:hover { opacity: 0.88; background: var(--coral); }
+    .services-note {
+      text-align: center; margin-top: 36px;
+      font-family: var(--font-mono); font-size: 0.78rem;
+      color: var(--text-dim); letter-spacing: 0.03em;
+    }
+
     /* ─── Color Palette Showcase (Graphics specific) ─────────────────────── */
     .palette-strip {
       display: flex; gap: 2px; margin-top: 12px; border-radius: 8px; overflow: hidden;
@@ -812,13 +968,14 @@
 
     /* ─── Mobile Nav Drawer ──────────────────────────────────────────────── */
     .nav-mobile {
-      position: fixed; top: 0; right: -100%; bottom: 0;
-      width: 280px; background: var(--surface);
+      position: fixed; top: 0; bottom: 0; left: auto; right: 0;
+      width: min(280px, 80vw); background: var(--surface);
       border-left: 1px solid var(--border);
       z-index: 200; padding: 80px 32px 40px;
-      transition: right 0.4s var(--transition);
+      transform: translateX(105%);
+      transition: transform 0.4s var(--transition);
     }
-    .nav-mobile.open { right: 0; }
+    .nav-mobile.open { transform: translateX(0); }
     .nav-mobile ul { list-style: none; display: flex; flex-direction: column; gap: 0; }
     .nav-mobile a {
       display: block; padding: 16px 0;
@@ -840,22 +997,94 @@
     .nav-backdrop.open { display: block; }
 
     /* ─── Responsive ────────────────────────────────────────────────────── */
+    /* ─── Responsive ─────────────────────────────────────────────────────── */
+    /* Tablet landscape / small laptop */
+    @media (max-width: 1024px) {
+      .projects-grid.featured { grid-template-columns: 1fr 1fr; }
+      .projects-grid.featured .card:first-child { grid-column: 1 / 3; }
+      .hero-meta { gap: 36px; }
+    }
+
+    /* Tablet portrait */
     @media (max-width: 900px) {
       nav { padding: 18px 24px; }
       nav.scrolled { padding: 12px 24px; }
       .nav-links { display: none; }
       .nav-burger { display: flex; }
-      #hero { padding: 0 24px 60px; }
+      #hero { padding: 0 24px 60px; min-height: 92vh; }
       section { padding: 80px 24px; }
       .section-header { flex-direction: column; gap: 16px; }
-      .section-desc { max-width: 100%; }
-      .projects-grid { grid-template-columns: 1fr; }
-      .projects-grid.featured { grid-template-columns: 1fr; }
-      .projects-grid.featured .card:first-child { grid-column: 1; }
+      .section-desc { max-width: 100%; align-self: flex-start; }
+      .view-all { align-self: flex-start; }
+      .projects-grid { grid-template-columns: 1fr 1fr; }
+      .projects-grid.featured { grid-template-columns: 1fr 1fr; }
+      .projects-grid.featured .card:first-child { grid-column: 1 / 3; }
       #about { flex-direction: column; gap: 40px; padding: 60px 24px; }
-      .about-photo { width: 100%; height: 240px; }
+      .about-photo { width: 100%; max-width: 360px; height: 280px; }
+      .about-ctas { flex-wrap: wrap; }
       footer { flex-direction: column; gap: 16px; text-align: center; }
       #contact { padding: 80px 24px; }
+      .testimonials-track { grid-template-columns: 1fr 1fr; }
+      .services-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
+      .hero-meta { flex-direction: column; gap: 28px; }
+      .hero-tags { align-self: flex-start; }
+      .hero-scroll { display: none; }
+      /* tame the giant ghost section labels */
+      #webdev::before, #uiux::before, #graphics::before,
+      #industrial::before, #blog::before, #services::before { font-size: 22vw; top: 40px; }
+      #testimonials::before { font-size: 34vw; }
+    }
+
+    /* Large phone */
+    @media (max-width: 640px) {
+      nav { padding: 16px 18px; }
+      nav.scrolled { padding: 12px 18px; }
+      #hero { padding: 0 18px 48px; }
+      section { padding: 64px 18px; }
+      .hero-name { font-size: clamp(2.6rem, 14vw, 4rem); }
+      .hero-bio { font-size: 0.98rem; }
+      .projects-grid, .projects-grid.featured { grid-template-columns: 1fr; }
+      .projects-grid.featured .card:first-child { grid-column: 1; }
+      .testimonials-track { grid-template-columns: 1fr; }
+      .card-inner { padding: 26px; min-height: 280px; }
+      .section-title { font-size: clamp(1.8rem, 9vw, 2.6rem); }
+      .contact-title { font-size: clamp(2.2rem, 13vw, 4rem); }
+      .contact-links { flex-direction: column; }
+      .contact-link { justify-content: center; width: 100%; }
+      .stats-row { gap: 28px 32px; }
+      .modal { max-height: 92vh; }
+      .modal-body { padding: 26px 22px; }
+      .modal-media { height: 220px; }
+      #about { padding: 56px 18px; }
+      footer { padding: 32px 18px; }
+      .footer-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
+    }
+
+    /* Small phone */
+    @media (max-width: 400px) {
+      .hero-name { font-size: clamp(2.2rem, 15vw, 3rem); }
+      .hero-tag { font-size: 0.68rem; padding: 5px 11px; }
+      .nav-logo { font-size: 1rem; }
+      .card-title { font-size: 1.25rem; }
+      .service-card { padding: 28px 22px; }
+      .stat-number { font-size: 2rem; }
+    }
+
+    /* Touch devices: kill the custom cursor (it's desktop-only flair) */
+    @media (hover: none), (pointer: coarse) {
+      .cursor, .cursor-ring { display: none !important; }
+      * { cursor: auto !important; }
+    }
+
+    /* Respect reduced-motion preference */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .orb { animation: none !important; }
     }
   </style>
 </head>
@@ -884,6 +1113,8 @@
     <li><a href="#graphics">Graphics</a></li>
     <li><a href="#industrial">Industrial</a></li>
     <li><a href="#blog">Blog</a></li>
+    <li><a href="#testimonials">Praise</a></li>
+    <li><a href="#services">Services</a></li>
     <li><a href="#contact" class="nav-cta">Hire Me</a></li>
   </ul>
   <button class="nav-burger" id="navBurger" aria-label="Menu">
@@ -901,6 +1132,8 @@
     <li><a href="#graphics" class="mobile-link">Graphics</a></li>
     <li><a href="#industrial" class="mobile-link">Industrial</a></li>
     <li><a href="#blog" class="mobile-link">Blog</a></li>
+    <li><a href="#testimonials" class="mobile-link">Praise</a></li>
+    <li><a href="#services" class="mobile-link">Services</a></li>
     <li><a href="#contact" class="mobile-link">Contact</a></li>
   </ul>
 </nav>
@@ -1052,10 +1285,39 @@
   </div>
 </section>
 
+<!-- Testimonials -->
+<section id="testimonials">
+  <div class="section-header reveal">
+    <div>
+      <div class="section-label">06 — Social Proof</div>
+      <h2 class="section-title">What people say</h2>
+    </div>
+    <p class="section-desc">Clients, collaborators and teammates I've shipped real work with. The kind of feedback that means more than a portfolio shot.</p>
+  </div>
+  <div class="testimonials-track" id="testimonials-track">
+    <div class="empty-state skeleton" style="height: 220px; border-radius: var(--radius); grid-column: 1 / -1;"></div>
+  </div>
+</section>
+
+<!-- Services / Rates -->
+<section id="services">
+  <div class="section-header reveal">
+    <div>
+      <div class="section-label">07 — Engagement</div>
+      <h2 class="section-title">How we can work</h2>
+    </div>
+    <p class="section-desc">Clear ways to bring me in — whether you need a one-off build, an ongoing partner, or a fast hackathon-grade prototype. Flexible on scope; serious about outcomes.</p>
+  </div>
+  <div class="services-grid" id="services-grid">
+    <div class="empty-state skeleton" style="height: 280px; border-radius: var(--radius); grid-column: 1 / -1;"></div>
+  </div>
+  <p class="services-note" id="services-note">Rates are indicative starting points — every project is scoped individually. Let's talk specifics.</p>
+</section>
+
 <!-- Contact -->
 <section id="contact">
   <div class="contact-inner">
-    <p class="contact-label">06 — Contact</p>
+    <p class="contact-label">08 — Contact</p>
     <h2 class="contact-title">Let's build<br>something <em>great.</em></h2>
     <p class="contact-sub">Open for freelance contracts, full-time roles, and interesting collaborations. I move fast, think in systems, and ship work that looks as good as it performs.</p>
     <div class="contact-links">
@@ -1187,9 +1449,9 @@
   // ─── CV Download ─────────────────────────────────────────────────────────────
   async function setupCVLinks() {
     try {
-      const res = await fetch(API + '/api/cv');
+      const res = await fetch(API + '/api/settings?key=cv_url');
       const data = await res.json();
-      const cvPath = data.path || '/assets/cv/kingley-cv.pdf';
+      const cvPath = data.value || '/assets/cv/kingley-cv.pdf';
       document.getElementById('cvDownloadBtn').href = cvPath;
       document.getElementById('cvDownloadBtn').download = 'Kingley-Chukwudume-CV.pdf';
       document.getElementById('contactCVBtn').href = cvPath;
@@ -1197,6 +1459,20 @@
     } catch(e) {}
   }
   setupCVLinks();
+
+  // ─── Profile photo (from settings) ───────────────────────────────────────────
+  async function loadProfilePhoto() {
+    try {
+      const res = await fetch(API + '/api/settings?key=profile_photo');
+      const data = await res.json();
+      if (data.value) {
+        const el = document.getElementById('aboutPhoto');
+        el.innerHTML = `<img src="${data.value}" alt="Kingley Chukwudume" style="width:100%;height:100%;object-fit:cover;">`;
+        el.style.padding = '0';
+      }
+    } catch(e) {}
+  }
+  loadProfilePhoto();
 
   // ─── Render Projects ─────────────────────────────────────────────────────────
   function getPlaceholderSVG(category) {
@@ -1277,7 +1553,7 @@
         btn.addEventListener('click', async (e) => {
           e.stopPropagation();
           const id = btn.dataset.id;
-          const res = await fetch(`${API}/api/likes/${id}`, {
+          const res = await fetch(`${API}/api/likes?projectId=${id}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ visitorId: VISITOR_ID })
@@ -1359,7 +1635,7 @@
 
     actionsEl.querySelector('.like-btn-modal').addEventListener('click', async () => {
       const btn = actionsEl.querySelector('.like-btn-modal');
-      const res = await fetch(`${API}/api/likes/${project.id}`, {
+      const res = await fetch(`${API}/api/likes?projectId=${project.id}`, {
         method: 'POST', headers: {'Content-Type':'application/json'},
         body: JSON.stringify({ visitorId: VISITOR_ID })
       });
@@ -1395,7 +1671,7 @@
     const list = document.getElementById('reviewsList');
     list.innerHTML = '<div style="color:var(--text-dim);font-size:0.8rem;font-family:var(--font-mono);">Loading...</div>';
     try {
-      const res = await fetch(`${API}/api/reviews/${projectId}`);
+      const res = await fetch(`${API}/api/reviews?projectId=${projectId}`);
       const data = await res.json();
       if (!data.reviews || data.reviews.length === 0) {
         list.innerHTML = '<div style="color:var(--text-dim);font-size:0.8rem;font-family:var(--font-mono);">No reviews yet. Be the first!</div>';
@@ -1434,7 +1710,7 @@
     const btn = document.getElementById('submitReview');
     btn.textContent = 'Posting...';
     try {
-      await fetch(`${API}/api/reviews/${currentProjectId}`, {
+      await fetch(`${API}/api/reviews?projectId=${currentProjectId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, message, rating: selectedRating })
@@ -1452,12 +1728,101 @@
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
+  // ─── Testimonials ────────────────────────────────────────────────────────────
+  async function loadTestimonials() {
+    const track = document.getElementById('testimonials-track');
+    try {
+      const res = await fetch(API + '/api/testimonials');
+      const data = await res.json();
+      const items = data.testimonials || [];
+      if (!items.length) {
+        track.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">No testimonials yet. Add them from the admin panel.</div>`;
+        return;
+      }
+      track.innerHTML = items.map(t => {
+        const initials = (t.name || '?').split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+        const avatar = t.avatar
+          ? `<img src="${t.avatar}" class="testimonial-avatar" alt="${escapeHtml(t.name)}">`
+          : `<div class="testimonial-avatar">${initials}</div>`;
+        const stars = t.rating ? `<div class="testimonial-stars">${'★'.repeat(t.rating)}${'☆'.repeat(5-t.rating)}</div>` : '';
+        return `
+          <div class="testimonial-card reveal">
+            <div class="testimonial-quote-mark">"</div>
+            ${stars}
+            <p class="testimonial-text">${escapeHtml(t.message)}</p>
+            <div class="testimonial-author">
+              ${avatar}
+              <div>
+                <div class="testimonial-name">${escapeHtml(t.name)}</div>
+                <div class="testimonial-role">${escapeHtml(t.role || '')}</div>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+      track.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    } catch(e) {
+      track.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Could not load testimonials.</div>`;
+    }
+  }
+
+  // ─── Services / Rates ────────────────────────────────────────────────────────
+  const DEFAULT_SERVICES = [
+    {
+      icon: '🛠️', name: 'Project Build', desc: 'A complete website, web app, or mobile app — designed and built end to end.',
+      price: 'from £1,500', unit: '/ project',
+      features: ['Full design + development', 'Responsive across devices', 'Deployment & handover', 'Two revision rounds'],
+      cta: 'Start a project', featured: false
+    },
+    {
+      icon: '⚡', name: 'Monthly Partner', desc: 'Ongoing design & development support — your on-call technical builder.',
+      price: 'from £1,800', unit: '/ month',
+      features: ['Priority availability', 'Continuous shipping', 'Design + code + advice', 'Cancel anytime'],
+      cta: "Let's talk", featured: true
+    },
+    {
+      icon: '🎨', name: 'Design & Brand', desc: 'UI/UX, graphics, packaging, or industrial/CAD design as a focused engagement.',
+      price: 'from £600', unit: '/ engagement',
+      features: ['Figma / CAD deliverables', 'Source files included', 'Brand-consistent output', 'Print-ready where needed'],
+      cta: 'Request design', featured: false
+    }
+  ];
+
+  async function loadServices() {
+    const grid = document.getElementById('services-grid');
+    let services = DEFAULT_SERVICES;
+    try {
+      const res = await fetch(API + '/api/settings?key=services');
+      const data = await res.json();
+      if (data.value) {
+        const parsed = JSON.parse(data.value);
+        if (Array.isArray(parsed) && parsed.length) services = parsed;
+      }
+    } catch(e) { /* fall back to defaults */ }
+
+    grid.innerHTML = services.map(s => `
+      <div class="service-card reveal ${s.featured ? 'featured-plan' : ''}">
+        ${s.featured ? '<div class="service-badge">Most popular</div>' : ''}
+        <div class="service-icon">${escapeHtml(s.icon || '•')}</div>
+        <div class="service-name">${escapeHtml(s.name)}</div>
+        <div class="service-desc">${escapeHtml(s.desc || '')}</div>
+        <div class="service-price">${escapeHtml(s.price || '')} <span>${escapeHtml(s.unit || '')}</span></div>
+        <ul class="service-features">
+          ${(s.features || []).map(f => `<li>${escapeHtml(f)}</li>`).join('')}
+        </ul>
+        <a href="#contact" class="service-cta">${escapeHtml(s.cta || 'Get in touch')}</a>
+      </div>
+    `).join('');
+    grid.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  }
+
   // ─── Init ────────────────────────────────────────────────────────────────────
   loadSection('webdev', 'webdev-grid');
   loadSection('uiux', 'uiux-grid');
   loadSection('graphics', 'graphics-grid');
   loadSection('industrial', 'industrial-grid');
   loadSection('blog', 'blog-grid');
+  loadTestimonials();
+  loadServices();
 </script>
 </body>
 </html>
