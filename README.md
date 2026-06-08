@@ -29,29 +29,36 @@ Clean split: **`/api`** is the backend, **`/public`** is everything the browser 
 ## 🚀 Deploy in 5 steps
 
 ### 1. Create a Supabase project
+
 - Go to [supabase.com](https://supabase.com) → **New Project**. Pick a region near the UK (e.g. London / eu-west-2).
 - Wait for it to provision.
 
 ### 2. Run the schema
+
 - In Supabase: **SQL Editor → New query** → paste the entire contents of `supabase/schema.sql` → **Run**.
 - This creates the `projects`, `reviews`, `likes`, `settings` tables, the public **`media`** storage bucket, and seeds your projects.
 
 ### 3. Grab your keys
+
 - Supabase: **Settings → API**. Copy:
   - **Project URL** → `SUPABASE_URL`
   - **service_role** secret key → `SUPABASE_SERVICE_ROLE_KEY` (⚠️ secret — never put this in frontend code; it's only used server-side in the function)
 
 ### 4. Deploy to Vercel
+
 - Your repo is already on GitHub. In [vercel.com](https://vercel.com) → **Add New → Project** → import the repo.
 - Before deploying, add **Environment Variables**:
+
   | Name | Value |
   |---|---|
   | `SUPABASE_URL` | your project URL |
   | `SUPABASE_SERVICE_ROLE_KEY` | your service_role key |
   | `ADMIN_PASSWORD` | a strong password of your choice |
+
 - Click **Deploy**. Vercel auto-detects `vercel.json`, builds the function from `/api`, and serves `/public`.
 
 ### 5. Add your content
+
 - Visit `https://your-site.vercel.app/admin` → log in with `ADMIN_PASSWORD`.
 - Upload project media (images + short videos), your CV (PDF), and a profile photo.
 - Add / edit / delete projects, toggle "featured", and moderate reviews.
@@ -74,6 +81,7 @@ npm install
 cp .env.example .env     # fill in your Supabase keys + admin password
 npm run dev
 ```
+
 Site: `http://localhost:3001` · Admin: `http://localhost:3001/admin`
 
 ---
@@ -102,6 +110,7 @@ Site: `http://localhost:3001` · Admin: `http://localhost:3001/admin`
 ---
 
 ## 🔧 Before going live
+
 - [ ] Set a strong `ADMIN_PASSWORD` in Vercel.
 - [ ] Replace the email in `index.html` (`hello@kingley.design`) with your real one.
 - [ ] Confirm your LinkedIn URL.
@@ -109,4 +118,5 @@ Site: `http://localhost:3001` · Admin: `http://localhost:3001/admin`
 - [ ] (Optional) Add a custom domain in Vercel → Settings → Domains once you buy one.
 
 ## ⚠️ Security note
+
 The `service_role` key bypasses Row Level Security and must **only** live in Vercel's server-side env vars — never in `public/` or committed to git. The frontend never sees it; it only talks to your own `/api` routes.
