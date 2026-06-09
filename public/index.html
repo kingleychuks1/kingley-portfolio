@@ -3,6 +3,16 @@
 
 <head>
   <meta charset="UTF-8">
+  <!-- Theme resolution before first paint (no flash). localStorage wins; admin default resolves later via JS. -->
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('theme') === 'light') {
+          document.documentElement.dataset.theme = 'light';
+        }
+      } catch (e) { }
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kingley Chukwudume — Designer & Developer</title>
   <meta name="description"
@@ -76,6 +86,232 @@
       --radius: 16px;
       --radius-sm: 10px;
       --transition: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ─── Light theme (gymduoo cream) ───────────────────────────────────────
+       Warm cream surfaces, deep-purple text, soft light-lavender decoration.
+       Per-section accents are darkened for WCAG AA contrast on cream. */
+    [data-theme="light"] {
+      /* Cream base */
+      --bg: #fdf6ee;
+      --plum: #fbeede;
+      --plum-dark: #f5e7dc;
+      --surface: #fffaf3;
+      --surface2: #f4e9dc;
+      --border: rgba(74, 33, 92, 0.16);
+      --text: #2e1133;
+      --text-muted: #5a4660;
+      --text-dim: #756080;
+
+      /* Accent palette — re-tuned for contrast on cream */
+      --coral: #c62f44;
+      --lav: #c9b6e8;
+      /* soft light-lavender for decoration */
+      --sky: #1c6f9e;
+      --yellow: #8a6a00;
+      --orange: #b14d0e;
+      --cream: #6a4a00;
+
+      /* Category accents (AA on cream) */
+      --web: #1c6f9e;
+      --web-glow: rgba(28, 111, 158, 0.18);
+      --ux: #b14d0e;
+      --ux-glow: rgba(177, 77, 14, 0.16);
+      --graphics: #c62f44;
+      --graphics-glow: rgba(198, 47, 68, 0.16);
+      --industrial: #8a6a00;
+      --industrial-glow: rgba(138, 106, 0, 0.16);
+      --blog: #774bb0;
+      --blog-glow: rgba(119, 75, 176, 0.16);
+    }
+
+    /* Cream page background — soft lavender wash instead of bright accents */
+    [data-theme="light"] body {
+      background:
+        radial-gradient(circle at 78% 12%, rgba(201, 182, 232, 0.30), transparent 34%),
+        radial-gradient(circle at 16% 70%, rgba(201, 182, 232, 0.22), transparent 38%),
+        radial-gradient(circle at 90% 88%, rgba(245, 165, 130, 0.10), transparent 30%),
+        linear-gradient(155deg, var(--plum) 0%, var(--plum-dark) 55%, var(--bg) 100%);
+    }
+
+    [data-theme="light"] ::-webkit-scrollbar-thumb {
+      background: rgba(46, 17, 51, 0.22);
+    }
+
+    /* Nav */
+    [data-theme="light"] nav.scrolled {
+      background: rgba(253, 246, 238, 0.78);
+    }
+
+    [data-theme="light"] .nav-cta:hover {
+      background: rgba(46, 17, 51, 0.06) !important;
+      border-color: rgba(46, 17, 51, 0.22) !important;
+    }
+
+    /* Hero — soft light orbs, faint purple grid, dark name outline */
+    [data-theme="light"] .hero-bg {
+      background:
+        radial-gradient(circle at 75% 25%, rgba(201, 182, 232, 0.40), transparent 32%),
+        radial-gradient(circle at 20% 75%, rgba(201, 182, 232, 0.34), transparent 36%),
+        radial-gradient(circle at 85% 80%, rgba(245, 165, 130, 0.12), transparent 28%);
+    }
+
+    [data-theme="light"] .orb {
+      opacity: 0.4;
+      filter: blur(70px);
+    }
+
+    [data-theme="light"] .orb-1 {
+      background: #c9b6e8;
+    }
+
+    [data-theme="light"] .orb-2 {
+      background: #d8c7f0;
+    }
+
+    [data-theme="light"] .orb-3 {
+      background: #e7dbf6;
+    }
+
+    [data-theme="light"] .hero-grid {
+      background-image: linear-gradient(rgba(74, 33, 92, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(74, 33, 92, 0.05) 1px, transparent 1px);
+    }
+
+    [data-theme="light"] .hero-noise {
+      opacity: 0.02;
+    }
+
+    [data-theme="light"] .hero-name em {
+      -webkit-text-stroke: 1px rgba(46, 17, 51, 0.32);
+    }
+
+    /* Ghost section labels — soft light-lavender on cream */
+    [data-theme="light"] #webdev::before,
+    [data-theme="light"] #uiux::before,
+    [data-theme="light"] #graphics::before,
+    [data-theme="light"] #industrial::before,
+    [data-theme="light"] #blog::before,
+    [data-theme="light"] #services::before,
+    [data-theme="light"] #testimonials::before {
+      -webkit-text-stroke: 1px rgba(201, 182, 232, 0.55);
+    }
+
+    /* Cards — light surfaces with soft purple borders instead of dark glass */
+    [data-theme="light"] .card {
+      background: rgba(255, 250, 243, 0.7);
+    }
+
+    [data-theme="light"] .card:hover {
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    [data-theme="light"] .card-media img,
+    [data-theme="light"] .card-media video {
+      opacity: 0.16;
+    }
+
+    [data-theme="light"] .card:hover .card-media img,
+    [data-theme="light"] .card:hover .card-media video {
+      opacity: 0.28;
+    }
+
+    [data-theme="light"] .testimonial-card,
+    [data-theme="light"] .service-card {
+      background: rgba(255, 250, 243, 0.72);
+    }
+
+    [data-theme="light"] .service-card.featured-plan {
+      background: rgba(198, 47, 68, 0.06);
+    }
+
+    /* Section tint washes — softer on cream */
+    [data-theme="light"] #uiux {
+      background: linear-gradient(180deg, transparent 0%, rgba(177, 77, 14, 0.05) 50%, transparent 100%);
+    }
+
+    [data-theme="light"] #industrial {
+      background: linear-gradient(180deg, transparent 0%, rgba(138, 106, 0, 0.05) 50%, transparent 100%);
+    }
+
+    [data-theme="light"] #services {
+      background: linear-gradient(180deg, transparent 0%, rgba(28, 111, 158, 0.05) 50%, transparent 100%);
+    }
+
+    [data-theme="light"] #contact::before {
+      background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(201, 182, 232, 0.35) 0%, transparent 70%);
+    }
+
+    /* Dark-tint hovers replace the white-tint ones */
+    [data-theme="light"] .service-cta:hover,
+    [data-theme="light"] .btn-outline:hover,
+    [data-theme="light"] .contact-link:hover {
+      background: rgba(46, 17, 51, 0.05);
+      border-color: rgba(46, 17, 51, 0.22);
+    }
+
+    [data-theme="light"] .modal {
+      background: rgba(255, 250, 243, 0.96);
+    }
+
+    [data-theme="light"] .modal-close,
+    [data-theme="light"] .nav-mobile-close {
+      background: rgba(46, 17, 51, 0.07);
+    }
+
+    [data-theme="light"] .modal-close:hover {
+      background: rgba(46, 17, 51, 0.14);
+    }
+
+    [data-theme="light"] .review-form input:focus,
+    [data-theme="light"] .review-form textarea:focus {
+      border-color: rgba(46, 17, 51, 0.3);
+    }
+
+    /* ─── Theme toggle button ───────────────────────────────────────────────── */
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+
+    .theme-toggle:hover {
+      color: var(--text);
+      border-color: var(--text-muted);
+    }
+
+    .theme-toggle svg {
+      width: 17px;
+      height: 17px;
+    }
+
+    .theme-toggle .icon-moon {
+      display: none;
+    }
+
+    [data-theme="light"] .theme-toggle .icon-sun {
+      display: none;
+    }
+
+    [data-theme="light"] .theme-toggle .icon-moon {
+      display: block;
+    }
+
+    .theme-toggle-mobile {
+      width: 44px;
+      height: 44px;
+      margin-top: 24px;
+    }
+
+    .theme-toggle-mobile svg {
+      width: 20px;
+      height: 20px;
     }
 
     /* ─── Reset & Base ──────────────────────────────────────────────────── */
@@ -2242,6 +2478,19 @@
       <li><a href="#blog">Blog</a></li>
       <li><a href="#testimonials">Praise</a></li>
       <li><a href="#services">Services</a></li>
+      <li>
+        <button class="theme-toggle" data-theme-toggle aria-label="Toggle light/dark theme">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        </button>
+      </li>
       <li><a href="#contact" class="nav-cta">Hire Me</a></li>
     </ul>
     <button class="nav-burger" id="navBurger" aria-label="Menu">
@@ -2263,6 +2512,17 @@
       <li><a href="#services" class="mobile-link">Services</a></li>
       <li><a href="#contact" class="mobile-link">Contact</a></li>
     </ul>
+    <button class="theme-toggle theme-toggle-mobile" data-theme-toggle aria-label="Toggle light/dark theme">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+        stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </svg>
+    </button>
   </nav>
 
   <!-- Hero -->
@@ -2557,6 +2817,32 @@
       const id = 'v_' + Math.random().toString(36).slice(2);
       localStorage.setItem('vid', id);
       return id;
+    })();
+
+    // ─── Theme (light/dark) ────────────────────────────────────────────────────
+    (function () {
+      function applyTheme(t) {
+        if (t === 'light') document.documentElement.dataset.theme = 'light';
+        else delete document.documentElement.dataset.theme;
+      }
+      let stored = null;
+      try { stored = localStorage.getItem('theme'); } catch (e) { }
+      if (stored) {
+        applyTheme(stored); // already applied pre-paint; keep consistent
+      } else {
+        // No visitor choice — fall back to the admin default.
+        fetch(API + '/api/settings?key=theme')
+          .then(r => r.json())
+          .then(d => { if (d && d.value) applyTheme(d.value); })
+          .catch(() => { });
+      }
+      document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+          applyTheme(next);
+          try { localStorage.setItem('theme', next); } catch (e) { }
+        });
+      });
     })();
 
     // ─── Cursor ──────────────────────────────────────────────────────────────────

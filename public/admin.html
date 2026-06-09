@@ -111,6 +111,10 @@
     .content-title { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
     .btn-add { padding: 10px 20px; background: var(--web); color: #fff; border-radius: 100px; font-family: var(--font-mono); font-size: 0.75rem; transition: opacity 0.2s; }
     .btn-add:hover { opacity: 0.85; }
+    .theme-select { display: flex; gap: 12px; margin-top: 16px; max-width: 360px; }
+    .theme-opt { flex: 1; padding: 14px 0; border: 1px solid var(--border); border-radius: var(--radius-sm, 10px); background: var(--surface2); font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.04em; cursor: pointer; transition: all 0.2s; }
+    .theme-opt:hover { border-color: rgba(255,255,255,0.25); }
+    .theme-opt.active { border-color: var(--web); background: rgba(116,207,244,0.12); color: var(--web); }
 
     /* ─── Stats Row ── */
     .stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; margin-bottom: 36px; }
@@ -447,6 +451,19 @@
           <button class="btn btn-ghost" onclick="document.getElementById('photoFileInput').click()">Select Image</button>
           <input type="file" id="photoFileInput" accept="image/*" style="display:none">
         </div>
+
+        <div class="content-header" style="margin-top:36px;"><h2 class="content-title">Site Theme</h2></div>
+        <div id="themeStatus" class="cv-status">
+          <div class="cv-icon">🎨</div>
+          <div>
+            <div class="cv-name">Default appearance for visitors</div>
+            <div class="cv-date">Applies to visitors who haven't picked their own theme</div>
+          </div>
+        </div>
+        <div class="theme-select" id="themeSelect">
+          <button type="button" class="theme-opt" data-theme-value="dark" onclick="saveSiteTheme('dark')">🌙 Dark</button>
+          <button type="button" class="theme-opt" data-theme-value="light" onclick="saveSiteTheme('light')">☀️ Light</button>
+        </div>
       </div>
 
       <!-- Reviews -->
@@ -640,7 +657,7 @@
         if (btn.dataset.tab === 'reviews') loadAllReviews();
         if (btn.dataset.tab === 'testimonials') loadTestimonialsAdmin();
         if (btn.dataset.tab === 'services') loadServicesAdmin();
-        if (btn.dataset.tab === 'cv') { loadCVStatus(); loadPhotoStatus(); }
+        if (btn.dataset.tab === 'cv') { loadCVStatus(); loadPhotoStatus(); loadSiteTheme(); }
         if (btn.dataset.tab === 'upload') loadUploadProjectList();
       }
     });
@@ -953,6 +970,28 @@
       document.getElementById('photoFileDate').textContent = 'Uploaded just now';
     } catch (e) {
       toast('Photo upload failed', 'error');
+    }
+  }
+
+  // ─── Site Theme ──────────────────────────────────────────────────────────
+  function markThemeActive(value) {
+    document.querySelectorAll('#themeSelect .theme-opt').forEach(b => {
+      b.classList.toggle('active', b.dataset.themeValue === value);
+    });
+  }
+
+  async function loadSiteTheme() {
+    const data = await api('/api/settings?key=theme');
+    markThemeActive(data.value || 'dark');
+  }
+
+  async function saveSiteTheme(value) {
+    markThemeActive(value);
+    try {
+      await api('/api/settings', 'POST', { key: 'theme', value });
+      toast(`Default theme set to ${value} ✓`);
+    } catch (e) {
+      toast('Failed to save theme', 'error');
     }
   }
 
