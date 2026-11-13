@@ -31,7 +31,7 @@
     }
     ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
     a { color: inherit; text-decoration: none; }
-    button { cursor: pointer; border: none; font: inherit; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font: inherit; color: inherit; }
 
     /* ─── Login Screen ── */
     #loginScreen {
@@ -116,6 +116,18 @@
     .theme-select { display: flex; gap: 12px; margin-top: 16px; max-width: 360px; }
     .theme-opt { flex: 1; padding: 14px 0; border: 1px solid var(--border); border-radius: var(--radius-sm, 10px); background: var(--surface2); font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.04em; cursor: pointer; transition: all 0.2s; }
     .theme-opt:hover { border-color: rgba(255,255,255,0.25); }
+    .order-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+    .order-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+    .order-row.is-hidden { opacity: 0.5; }
+    .order-num { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim); width: 22px; }
+    .order-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .order-name { flex: 1; font-weight: 500; }
+    .order-btns { display: flex; gap: 6px; align-items: center; }
+    .order-btns button { width: 34px; height: 34px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); cursor: pointer; }
+    .order-btns button:disabled { opacity: 0.3; cursor: default; }
+    .order-btns label { display: flex; gap: 6px; align-items: center; font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); margin-right: 6px; cursor: pointer; }
+    .guide-avatar-preview { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; background: var(--surface2); border: 1px solid var(--border); flex-shrink: 0; }
+    .help-text { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 18px; line-height: 1.6; }
     .theme-opt.active { border-color: var(--web); background: rgba(116,207,244,0.12); color: var(--web); }
 
     /* ─── Stats Row ── */
@@ -339,6 +351,9 @@
       </div>
       <div class="sidebar-section">
         <div class="sidebar-label">Content</div>
+        <button class="sidebar-btn" data-tab="homepage">
+          <span>🧭</span> Homepage & Welcome
+        </button>
         <button class="sidebar-btn" data-tab="upload">
           <span>📁</span> Upload Media
         </button>
@@ -465,6 +480,52 @@
         <div class="theme-select" id="themeSelect">
           <button type="button" class="theme-opt" data-theme-value="dark" onclick="saveSiteTheme('dark')">🌙 Dark</button>
           <button type="button" class="theme-opt" data-theme-value="light" onclick="saveSiteTheme('light')">☀️ Light</button>
+        </div>
+      </div>
+
+      <!-- Homepage & Welcome -->
+      <div class="tab" id="tab-homepage">
+        <div class="content-header"><h2 class="content-title">Section order</h2></div>
+        <p class="help-text">Choose the order your work sections appear on the site. The navigation, the hero tags, the section numbers and the welcome guide's choices all follow this order. Untick a section to hide it.</p>
+        <div class="order-list" id="sectionOrderList"></div>
+        <div style="display:flex;gap:10px;margin-bottom:44px;">
+          <button class="btn-save btn" id="saveSectionsBtn">Save order</button>
+          <button class="btn-cancel btn" id="resetSectionsBtn">Reset</button>
+        </div>
+
+        <div class="content-header"><h2 class="content-title">Welcome guide</h2></div>
+        <p class="help-text">After your name intro, a small guide greets new visitors, asks what they are here to see, and takes them straight to that section. It shows once per visit; visitors can reopen it from the button in the corner.</p>
+        <div class="form-grid">
+          <div class="field form-full">
+            <label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:0.85rem;color:var(--text);">
+              <input type="checkbox" id="guideEnabled" style="width:auto;"> Show the welcome guide to visitors
+            </label>
+          </div>
+          <div class="field form-full">
+            <label for="guideGreeting">Greeting</label>
+            <input type="text" id="guideGreeting" maxlength="80" placeholder="Hey, I'm Kingley 👋">
+          </div>
+          <div class="field form-full">
+            <label for="guideIntro">Intro line</label>
+            <textarea id="guideIntro" maxlength="240" style="height:70px;" placeholder="I design and build across web, product UI, brand graphics and physical products."></textarea>
+          </div>
+          <div class="field form-full">
+            <label for="guideQuestion">Question</label>
+            <input type="text" id="guideQuestion" maxlength="120" placeholder="To save you time, which of my skills are you here for?">
+          </div>
+          <div class="field form-full">
+            <label>Guide avatar (a cartoon of you works best)</label>
+            <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+              <img id="guideAvatarPreview" class="guide-avatar-preview" alt="">
+              <button type="button" class="btn btn-ghost" onclick="document.getElementById('guideAvatarInput').click()">Upload image</button>
+              <button type="button" class="btn btn-ghost" id="guideAvatarClear">Use profile photo instead</button>
+              <input type="file" id="guideAvatarInput" accept="image/*" style="display:none">
+            </div>
+            <div class="cv-date" id="guideAvatarNote" style="margin-top:8px;">Square image, at least 256×256. Without one, your profile photo is used.</div>
+          </div>
+        </div>
+        <div style="margin-top:20px;">
+          <button class="btn-save btn" id="saveGuideBtn">Save welcome guide</button>
         </div>
       </div>
 
@@ -666,6 +727,7 @@
         if (btn.dataset.tab === 'reviews') loadAllReviews();
         if (btn.dataset.tab === 'testimonials') loadTestimonialsAdmin();
         if (btn.dataset.tab === 'services') loadServicesAdmin();
+        if (btn.dataset.tab === 'homepage') loadHomepageAdmin();
         if (btn.dataset.tab === 'cv') { loadCVStatus(); loadPhotoStatus(); loadSiteTheme(); }
         if (btn.dataset.tab === 'upload') loadUploadProjectList();
       }
@@ -1221,6 +1283,111 @@
     if (!confirm('Reset services to the default three cards? This discards unsaved changes.')) return;
     servicesState = JSON.parse(JSON.stringify(DEFAULT_SERVICES));
     renderServicesEditor();
+  });
+
+  // ─── Homepage: section order + welcome guide ─────────────────────────────
+  const SECTION_META = {
+    webdev: { name: 'Web & Full-Stack', color: 'var(--web)' },
+    uiux: { name: 'UI / UX', color: 'var(--ux)' },
+    graphics: { name: 'Graphics & Brand', color: 'var(--graphics)' },
+    industrial: { name: 'Industrial Design', color: 'var(--industrial)' },
+    blog: { name: 'Blog & Lab', color: 'var(--blog)' }
+  };
+  const DEFAULT_ORDER = Object.keys(SECTION_META);
+  let sectionState = { order: [...DEFAULT_ORDER], hidden: [] };
+  let guideState = { enabled: true, greeting: '', intro: '', question: '', avatar: '' };
+  let profilePhotoUrl = '';
+
+  function parseJSON(v, fallback) { try { return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
+
+  async function loadHomepageAdmin() {
+    const all = await api('/api/settings');
+    const sec = parseJSON(all.sections, {});
+    const order = (sec.order || []).filter(id => SECTION_META[id]);
+    DEFAULT_ORDER.forEach(id => { if (!order.includes(id)) order.push(id); });
+    sectionState = { order, hidden: (sec.hidden || []).filter(id => SECTION_META[id]) };
+    renderSectionOrder();
+    guideState = Object.assign({ enabled: true, greeting: '', intro: '', question: '', avatar: '' }, parseJSON(all.guide, {}));
+    profilePhotoUrl = all.profile_photo || '';
+    document.getElementById('guideEnabled').checked = guideState.enabled !== false;
+    document.getElementById('guideGreeting').value = guideState.greeting || '';
+    document.getElementById('guideIntro').value = guideState.intro || '';
+    document.getElementById('guideQuestion').value = guideState.question || '';
+    renderGuideAvatar();
+  }
+
+  function renderSectionOrder() {
+    const el = document.getElementById('sectionOrderList');
+    const { order, hidden } = sectionState;
+    el.innerHTML = order.map((id, i) => `
+      <div class="order-row ${hidden.includes(id) ? 'is-hidden' : ''}">
+        <span class="order-num">${String(i + 1).padStart(2, '0')}</span>
+        <span class="order-dot" style="background:${SECTION_META[id].color}"></span>
+        <span class="order-name">${SECTION_META[id].name}</span>
+        <div class="order-btns">
+          <label><input type="checkbox" ${hidden.includes(id) ? '' : 'checked'} onchange="toggleSectionVisible('${id}', this.checked)"> Show</label>
+          <button type="button" aria-label="Move ${SECTION_META[id].name} up" ${i === 0 ? 'disabled' : ''} onclick="moveSection(${i}, -1)">↑</button>
+          <button type="button" aria-label="Move ${SECTION_META[id].name} down" ${i === order.length - 1 ? 'disabled' : ''} onclick="moveSection(${i}, 1)">↓</button>
+        </div>
+      </div>`).join('');
+  }
+
+  function moveSection(i, dir) {
+    const o = sectionState.order, j = i + dir;
+    if (j < 0 || j >= o.length) return;
+    [o[i], o[j]] = [o[j], o[i]];
+    renderSectionOrder();
+  }
+
+  function toggleSectionVisible(id, visible) {
+    sectionState.hidden = sectionState.hidden.filter(x => x !== id);
+    if (!visible) sectionState.hidden.push(id);
+    renderSectionOrder();
+  }
+
+  document.getElementById('saveSectionsBtn').addEventListener('click', async () => {
+    if (sectionState.hidden.length === DEFAULT_ORDER.length) { toast('Keep at least one section visible.', 'error'); return; }
+    await api('/api/settings', 'POST', { key: 'sections', value: JSON.stringify(sectionState) });
+    toast('Section order saved ✓');
+  });
+  document.getElementById('resetSectionsBtn').addEventListener('click', () => {
+    sectionState = { order: [...DEFAULT_ORDER], hidden: [] };
+    renderSectionOrder();
+  });
+
+  function renderGuideAvatar() {
+    const img = document.getElementById('guideAvatarPreview');
+    const src = guideState.avatar || profilePhotoUrl;
+    if (src) img.src = src; else img.removeAttribute('src');
+    document.getElementById('guideAvatarNote').textContent = guideState.avatar
+      ? 'Using your uploaded guide avatar.'
+      : (profilePhotoUrl ? 'Using your profile photo. Upload a cartoon of yourself to replace it.' : 'No image yet: the guide shows your initials.');
+  }
+
+  document.getElementById('guideAvatarInput').addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (!file || !file.type.startsWith('image/')) { toast('Please choose an image', 'error'); return; }
+    toast('Uploading avatar...');
+    try {
+      const data = await uploadFile(file);
+      guideState.avatar = data.url;
+      renderGuideAvatar();
+      toast('Avatar uploaded. Click "Save welcome guide" to publish.');
+    } catch (err) { toast('Avatar upload failed — ' + err.message, 'error'); }
+    e.target.value = '';
+  });
+  document.getElementById('guideAvatarClear').addEventListener('click', () => {
+    guideState.avatar = '';
+    renderGuideAvatar();
+  });
+
+  document.getElementById('saveGuideBtn').addEventListener('click', async () => {
+    guideState.enabled = document.getElementById('guideEnabled').checked;
+    guideState.greeting = document.getElementById('guideGreeting').value.trim();
+    guideState.intro = document.getElementById('guideIntro').value.trim();
+    guideState.question = document.getElementById('guideQuestion').value.trim();
+    await api('/api/settings', 'POST', { key: 'guide', value: JSON.stringify(guideState) });
+    toast('Welcome guide saved ✓');
   });
 
   function escAttr(s) { return String(s == null ? '' : s).replace(/"/g,'&quot;').replace(/</g,'&lt;'); }

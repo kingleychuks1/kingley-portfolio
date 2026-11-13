@@ -465,10 +465,63 @@
       border-color: rgba(255, 255, 255, 0.6);
     }
 
+    /* ─── Loader ─────────────────────────────────────────────────────────── */
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(155deg, var(--plum) 0%, var(--plum-dark) 55%, var(--bg) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      transition: opacity 0.8s var(--transition);
+    }
+
+    #loader.out {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loader-inner {
+      text-align: center;
+    }
+
+    .loader-name {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 6vw, 5rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      overflow: hidden;
+    }
+
+    .loader-name span {
+      display: inline-block;
+      transform: translateY(100%);
+      animation: slideUp 0.7s var(--transition) forwards;
+    }
+
+    .loader-name span:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+
+    .loader-bar {
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--coral), var(--orange), var(--yellow), var(--sky), var(--lav));
+      margin-top: 20px;
+      animation: loadBar 1.2s var(--transition) 0.4s forwards;
+    }
+
     @keyframes slideUp {
       to {
         transform: translateY(0);
         opacity: 1;
+      }
+    }
+
+    @keyframes loadBar {
+      to {
+        width: 100%;
       }
     }
 
@@ -677,7 +730,7 @@
       margin-bottom: 20px;
       position: relative;
       opacity: 0;
-      animation: fadeUp 0.8s var(--transition) 0.15s forwards;
+      animation: fadeUp 0.8s var(--transition) 1.8s forwards;
     }
 
     .hero-eyebrow::before {
@@ -715,11 +768,11 @@
     }
 
     .hero-name .line:first-child .word {
-      animation-delay: 0.1s;
+      animation-delay: 1.6s;
     }
 
     .hero-name .line:last-child .word {
-      animation-delay: 0.25s;
+      animation-delay: 1.9s;
     }
 
     .hero-name em {
@@ -735,7 +788,7 @@
       margin-top: 48px;
       position: relative;
       opacity: 0;
-      animation: fadeUp 0.8s var(--transition) 0.45s forwards;
+      animation: fadeUp 0.8s var(--transition) 2.1s forwards;
     }
 
     .hero-bio {
@@ -771,7 +824,7 @@
       align-items: center;
       gap: 8px;
       opacity: 0;
-      animation: fadeUp 0.8s var(--transition) 0.7s forwards;
+      animation: fadeUp 0.8s var(--transition) 2.3s forwards;
     }
 
     .hero-scroll span {
@@ -813,6 +866,375 @@
       to {
         opacity: 1;
         transform: translateY(0);
+      }
+    }
+
+    a.hero-tag {
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+
+    a.hero-tag:hover {
+      color: var(--text);
+      border-color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* ─── Welcome guide ─────────────────────────────────────────────────── */
+    .guide {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 950;
+      width: min(420px, calc(100vw - 32px));
+      max-height: calc(100vh - 48px);
+      overflow-y: auto;
+      background: rgba(42, 5, 38, 0.94);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(237, 173, 249, 0.22);
+      border-radius: 22px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+      padding: 22px;
+      transform: translateY(24px) scale(0.98);
+      opacity: 0;
+      visibility: hidden;
+      transition: transform 0.45s var(--transition), opacity 0.35s, visibility 0s linear 0.45s;
+    }
+
+    .guide:focus {
+      outline: none;
+    }
+
+    .guide.open {
+      transform: none;
+      opacity: 1;
+      visibility: visible;
+      transition: transform 0.45s var(--transition), opacity 0.35s, visibility 0s;
+    }
+
+    [data-theme="light"] .guide {
+      background: rgba(255, 250, 243, 0.96);
+      border-color: rgba(74, 33, 92, 0.18);
+      box-shadow: 0 24px 60px rgba(46, 17, 51, 0.18);
+    }
+
+    .guide-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .guide-close:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .guide-head {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding-right: 28px;
+    }
+
+    .guide-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      object-fit: cover;
+      background: linear-gradient(135deg, var(--coral), var(--orange));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 800;
+      color: #1f001d;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      animation: guideWave 2.4s ease-in-out 0.3s 2;
+      transform-origin: 50% 90%;
+    }
+
+    @keyframes guideWave {
+      0%, 60%, 100% { transform: rotate(0); }
+      10%, 30% { transform: rotate(-8deg); }
+      20%, 40% { transform: rotate(8deg); }
+    }
+
+    .guide-msgs {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .guide-msg {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px 16px 16px 16px;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      animation: guideIn 0.35s var(--transition);
+    }
+
+    .guide-msg.hello {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.15rem;
+    }
+
+    @keyframes guideIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .guide-typing {
+      display: inline-flex;
+      gap: 4px;
+      padding: 12px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px 16px 16px 16px;
+      width: max-content;
+    }
+
+    .guide-typing span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      animation: guideDot 1s infinite;
+    }
+
+    .guide-typing span:nth-child(2) { animation-delay: 0.15s; }
+    .guide-typing span:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes guideDot {
+      0%, 60%, 100% { opacity: 0.3; transform: none; }
+      30% { opacity: 1; transform: translateY(-3px); }
+    }
+
+    .guide-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .guide-opt {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      text-align: left;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: border-color 0.2s, background 0.2s, transform 0.2s;
+      animation: guideIn 0.35s var(--transition) both;
+    }
+
+    .guide-opt:hover {
+      border-color: var(--opt-color, var(--text-muted));
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .guide-opt-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+
+    .guide-opt-title::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--opt-color);
+      box-shadow: 0 0 10px var(--opt-color);
+      flex-shrink: 0;
+    }
+
+    .guide-opt-meta {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    .guide-opt.wide {
+      grid-column: 1 / -1;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .guide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .guide-link {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      padding: 8px 2px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .guide-link:hover {
+      color: var(--text);
+    }
+
+    .guide-launcher {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 940;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 16px 6px 6px;
+      border-radius: 100px;
+      background: rgba(42, 5, 38, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(237, 173, 249, 0.22);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.03em;
+      transform: translateY(12px);
+      opacity: 0;
+      visibility: hidden;
+      transition: transform 0.35s var(--transition), opacity 0.3s, visibility 0s linear 0.35s;
+    }
+
+    .guide-launcher.show {
+      transform: none;
+      opacity: 1;
+      visibility: visible;
+      transition: transform 0.35s var(--transition), opacity 0.3s, visibility 0s;
+    }
+
+    [data-theme="light"] .guide-launcher {
+      background: rgba(255, 250, 243, 0.96);
+      border-color: rgba(74, 33, 92, 0.18);
+      box-shadow: 0 12px 30px rgba(46, 17, 51, 0.15);
+    }
+
+    .guide-launcher .guide-avatar {
+      width: 40px;
+      height: 40px;
+      font-size: 0.8rem;
+      animation: none;
+    }
+
+    /* The section a visitor picked gets a brief spotlight */
+    .spotlight .section-title {
+      animation: spotlightTitle 2.4s var(--transition);
+    }
+
+    .spotlight .projects-grid > .card {
+      animation: spotlightCard 2.4s var(--transition);
+    }
+
+    @keyframes spotlightTitle {
+      0% { text-shadow: 0 0 0 transparent; }
+      25% { text-shadow: 0 0 28px var(--spot, var(--coral)); }
+      100% { text-shadow: 0 0 0 transparent; }
+    }
+
+    @keyframes spotlightCard {
+      0% { box-shadow: 0 0 0 0 transparent; }
+      25% { box-shadow: 0 0 0 2px var(--spot, var(--coral)), 0 0 40px -6px var(--spot, var(--coral)); }
+      100% { box-shadow: 0 0 0 0 transparent; }
+    }
+
+    #webdev { --spot: var(--web); }
+    #uiux { --spot: var(--ux); }
+    #graphics { --spot: var(--graphics); }
+    #industrial { --spot: var(--industrial); }
+    #blog { --spot: var(--blog); }
+
+    @media (max-width: 640px) {
+      .guide {
+        right: 8px;
+        left: 8px;
+        bottom: 8px;
+        width: auto;
+        max-height: 78vh;
+        border-radius: 20px;
+        padding: 16px;
+      }
+
+      .guide-head {
+        gap: 10px;
+      }
+
+      .guide-head .guide-avatar {
+        width: 44px;
+        height: 44px;
+        font-size: 0.85rem;
+      }
+
+      .guide-msg {
+        font-size: 0.88rem;
+        padding: 8px 12px;
+      }
+
+      .guide-msg.hello {
+        font-size: 1rem;
+      }
+
+      .guide-options {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        margin-top: 12px;
+      }
+
+      .guide-opt,
+      .guide-opt.wide {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 11px 14px;
+      }
+
+      .guide-opt-blurb,
+      .guide-opt.wide .guide-opt-meta {
+        display: none;
+      }
+
+      .guide-opt-count {
+        white-space: nowrap;
+      }
+
+      .guide-footer {
+        margin-top: 8px;
+        gap: 12px;
+      }
+
+      .guide-launcher {
+        right: 14px;
+        bottom: 14px;
+        padding: 4px;
+      }
+
+      .guide-launcher-label {
+        display: none;
       }
     }
 
@@ -2549,16 +2971,26 @@
   <div class="cursor" id="cursor" aria-hidden="true"></div>
   <div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
 
+  <!-- Loader (name intro) -->
+  <div id="loader" aria-hidden="true">
+    <div class="loader-inner">
+      <div class="loader-name">
+        <span>Kingley</span> <span>Chukwudume</span>
+      </div>
+      <div class="loader-bar"></div>
+    </div>
+  </div>
+
   <!-- Nav -->
   <nav id="nav" aria-label="Main">
     <a href="#hero" class="nav-logo" aria-label="Kingley Chukwudume — back to top">K<span aria-hidden="true">.</span>C</a>
     <ul class="nav-links">
       <li><a href="#about">About</a></li>
-      <li><a href="#webdev">Web Dev</a></li>
-      <li><a href="#uiux">UI/UX</a></li>
-      <li><a href="#graphics">Graphics</a></li>
-      <li><a href="#industrial">Industrial</a></li>
-      <li><a href="#blog">Blog</a></li>
+      <li data-section="webdev"><a href="#webdev">Web Dev</a></li>
+      <li data-section="uiux"><a href="#uiux">UI/UX</a></li>
+      <li data-section="graphics"><a href="#graphics">Graphics</a></li>
+      <li data-section="industrial"><a href="#industrial">Industrial</a></li>
+      <li data-section="blog"><a href="#blog">Blog</a></li>
       <li><a href="#testimonials">Testimonials</a></li>
       <li><a href="#services">Services</a></li>
       <li>
@@ -2588,11 +3020,11 @@
     <button class="nav-mobile-close" id="navMobileClose" aria-label="Close menu">✕</button>
     <ul>
       <li><a href="#about" class="mobile-link">About</a></li>
-      <li><a href="#webdev" class="mobile-link">Web Dev</a></li>
-      <li><a href="#uiux" class="mobile-link">UI/UX</a></li>
-      <li><a href="#graphics" class="mobile-link">Graphics</a></li>
-      <li><a href="#industrial" class="mobile-link">Industrial</a></li>
-      <li><a href="#blog" class="mobile-link">Blog</a></li>
+      <li data-section="webdev"><a href="#webdev" class="mobile-link">Web Dev</a></li>
+      <li data-section="uiux"><a href="#uiux" class="mobile-link">UI/UX</a></li>
+      <li data-section="graphics"><a href="#graphics" class="mobile-link">Graphics</a></li>
+      <li data-section="industrial"><a href="#industrial" class="mobile-link">Industrial</a></li>
+      <li data-section="blog"><a href="#blog" class="mobile-link">Blog</a></li>
       <li><a href="#testimonials" class="mobile-link">Testimonials</a></li>
       <li><a href="#services" class="mobile-link">Services</a></li>
       <li><a href="#contact" class="mobile-link">Contact</a></li>
@@ -2628,11 +3060,11 @@
     <div class="hero-meta">
       <p class="hero-bio">Designer &amp; developer building products that live at the intersection of beautiful
         interfaces, functional code, and physical form.</p>
-      <div class="hero-tags">
-        <span class="hero-tag">Web Dev</span>
-        <span class="hero-tag">UI/UX</span>
-        <span class="hero-tag">Graphics</span>
-        <span class="hero-tag">Industrial Design</span>
+      <div class="hero-tags" id="heroTags">
+        <a class="hero-tag" href="#webdev" data-section="webdev">Web Dev</a>
+        <a class="hero-tag" href="#uiux" data-section="uiux">UI/UX</a>
+        <a class="hero-tag" href="#graphics" data-section="graphics">Graphics</a>
+        <a class="hero-tag" href="#industrial" data-section="industrial">Industrial Design</a>
         <span class="hero-tag">BSc IT — First Class</span>
       </div>
     </div>
@@ -2858,6 +3290,20 @@
     </div>
   </footer>
 
+  <!-- Welcome guide -->
+  <div class="guide" id="guide" role="dialog" aria-modal="false" aria-labelledby="guideHello" tabindex="-1">
+    <button type="button" class="guide-close" id="guideClose" aria-label="Close welcome guide">✕</button>
+    <div class="guide-head">
+      <div id="guideAvatarSlot"></div>
+      <div class="guide-msgs" id="guideMsgs" aria-live="polite"></div>
+    </div>
+    <div id="guideOptions"></div>
+  </div>
+  <button type="button" class="guide-launcher" id="guideLauncher" aria-label="Open the guide: pick what you want to see" aria-controls="guide" aria-expanded="false">
+    <span id="guideLauncherAvatar"></span>
+    <span class="guide-launcher-label">What are you looking for?</span>
+  </button>
+
   <!-- Project Modal -->
   <div id="modal-overlay">
     <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1">
@@ -2995,6 +3441,17 @@
     } else {
       cursor.remove(); ring.remove();
     }
+
+    // ─── Loader (name intro) ─────────────────────────────────────────────────────
+    const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Lifts after the bar fills (1.6s) as the hero name slides in. It no longer
+    // waits for every image/font to finish loading first.
+    const introDone = new Promise(resolve => {
+      setTimeout(() => {
+        document.getElementById('loader').classList.add('out');
+        resolve();
+      }, REDUCED_MOTION ? 0 : 1600);
+    });
 
     // ─── Nav scroll ──────────────────────────────────────────────────────────────
     const nav = document.getElementById('nav');
@@ -3278,7 +3735,12 @@
     document.getElementById('modalClose').addEventListener('click', closeModal);
     overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
     document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') { closeModal(); closeMobileNav(true); return; }
+      if (e.key === 'Escape') {
+        if (overlay.classList.contains('open')) closeModal();
+        else if (mobileNav.classList.contains('open')) closeMobileNav(true);
+        else if (guideEl.classList.contains('open')) closeGuide(true);
+        return;
+      }
       // Keep keyboard focus inside the open dialog / drawer.
       const trap = overlay.classList.contains('open') ? modal : (mobileNav.classList.contains('open') ? mobileNav : null);
       if (e.key !== 'Tab' || !trap) return;
@@ -3460,8 +3922,216 @@
       grid.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     }
 
+    // ─── Section order (set in Admin → Homepage & Welcome) ───────────────────────
+    const SECTION_INFO = {
+      webdev: { title: 'Web & Full-Stack', blurb: 'Live platforms & apps', color: 'var(--web)' },
+      uiux: { title: 'UI / UX Design', blurb: 'Product & interface design', color: 'var(--ux)' },
+      graphics: { title: 'Graphics & Brand', blurb: 'Identity, packaging, print', color: 'var(--graphics)' },
+      industrial: { title: 'Industrial Design', blurb: 'CAD & physical products', color: 'var(--industrial)' },
+      blog: { title: 'Blog & Lab', blurb: 'Experiments & uni projects', color: 'var(--blog)' }
+    };
+    let sectionOrder = Object.keys(SECTION_INFO);
+
+    function parseSetting(v, fallback) { try { return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
+
+    function applySectionOrder(cfg) {
+      const known = Object.keys(SECTION_INFO);
+      const order = (cfg.order || []).filter(id => known.includes(id));
+      known.forEach(id => { if (!order.includes(id)) order.push(id); });
+      const hidden = (cfg.hidden || []).filter(id => known.includes(id));
+      if (hidden.length >= known.length) hidden.length = 0; // never hide everything
+      sectionOrder = order.filter(id => !hidden.includes(id));
+
+      // Move the section blocks, keeping them just before Testimonials.
+      const anchor = document.getElementById('testimonials');
+      order.forEach(id => {
+        const sec = document.getElementById(id);
+        anchor.parentNode.insertBefore(sec, anchor);
+        sec.hidden = hidden.includes(id);
+      });
+      // Renumber the "01 — Development" labels to match the new order.
+      sectionOrder.forEach((id, i) => {
+        const label = document.querySelector(`#${id} .section-label`);
+        const suffix = label.textContent.split('—').slice(1).join('—').trim();
+        label.textContent = `${String(i + 1).padStart(2, '0')} — ${suffix}`;
+      });
+      // Testimonials, Services and Contact continue the numbering.
+      let n = sectionOrder.length;
+      ['#testimonials .section-label', '#services .section-label', '#contact .contact-label'].forEach(sel => {
+        const label = document.querySelector(sel);
+        if (!label || label.closest('[hidden]')) return;
+        const suffix = label.textContent.split('—').slice(1).join('—').trim();
+        label.textContent = `${String(++n).padStart(2, '0')} — ${suffix}`;
+      });
+      // Nav (desktop + mobile) and hero tags follow the same order.
+      document.querySelectorAll('.nav-links, .nav-mobile ul, #heroTags').forEach(list => {
+        const items = order.map(id => list.querySelector(`:scope > [data-section="${id}"]`)).filter(Boolean);
+        if (!items.length) return;
+        const after = items[items.length - 1].nextSibling;
+        items.forEach(el => { list.insertBefore(el, after); el.hidden = hidden.includes(el.dataset.section); });
+      });
+    }
+
+    // ─── Welcome guide ───────────────────────────────────────────────────────────
+    const guideEl = document.getElementById('guide');
+    const guideMsgs = document.getElementById('guideMsgs');
+    const guideOptions = document.getElementById('guideOptions');
+    const guideLauncher = document.getElementById('guideLauncher');
+    let guideCfg = null;
+    let guideRun = 0; // cancels an in-progress typing sequence
+
+    function guideAvatarHTML(src, size) {
+      const safe = safeUrl(src);
+      return safe
+        ? `<img class="guide-avatar" src="${escapeHtml(safe)}" alt="" ${size ? `style="width:${size}px;height:${size}px"` : ''}>`
+        : `<div class="guide-avatar" aria-hidden="true">KC</div>`;
+    }
+
+    const wait = ms => new Promise(r => setTimeout(r, REDUCED_MOTION ? 0 : ms));
+
+    async function say(text, cls, run) {
+      if (run !== guideRun) return false;
+      if (!REDUCED_MOTION) {
+        const dots = document.createElement('div');
+        dots.className = 'guide-typing';
+        dots.setAttribute('aria-hidden', 'true');
+        dots.innerHTML = '<span></span><span></span><span></span>';
+        guideMsgs.appendChild(dots);
+        await wait(Math.min(1100, 380 + text.length * 12));
+        dots.remove();
+        if (run !== guideRun) return false;
+      }
+      const m = document.createElement('div');
+      m.className = 'guide-msg' + (cls ? ' ' + cls : '');
+      if (cls === 'hello') m.id = 'guideHello';
+      m.textContent = text;
+      guideMsgs.appendChild(m);
+      return true;
+    }
+
+    function projectCount(id) {
+      let n = 0;
+      projectsById.forEach(p => { if (p.category === id) n++; });
+      return n;
+    }
+
+    function renderGuideOptions() {
+      guideOptions.innerHTML = `
+        <div class="guide-options" role="group" aria-label="Choose what to see">
+          ${sectionOrder.map((id, i) => {
+            const info = SECTION_INFO[id];
+            const n = projectCount(id);
+            return `<button type="button" class="guide-opt" data-pick="${id}" style="--opt-color:${info.color};animation-delay:${i * 60}ms">
+              <span class="guide-opt-title">${escapeHtml(info.title)}</span>
+              <span class="guide-opt-meta"><span class="guide-opt-blurb">${escapeHtml(info.blurb)}</span>${n ? `<span class="guide-opt-count"> · ${n} project${n === 1 ? '' : 's'}</span>` : ''}</span>
+            </button>`;
+          }).join('')}
+          <button type="button" class="guide-opt wide" data-pick="all" style="--opt-color:var(--lav);animation-delay:${sectionOrder.length * 60}ms">
+            <span class="guide-opt-title">Show me everything</span>
+            <span class="guide-opt-meta">Start from the top →</span>
+          </button>
+        </div>
+        <div class="guide-footer">
+          <button type="button" class="guide-link" data-pick="contact">I'm hiring — how do I reach you?</button>
+          <button type="button" class="guide-link" data-pick="close">Just browsing</button>
+        </div>`;
+    }
+
+    function goToSection(id) {
+      const sec = document.getElementById(id);
+      if (!sec) return;
+      sec.scrollIntoView({ behavior: REDUCED_MOTION ? 'auto' : 'smooth', block: 'start' });
+      sec.classList.remove('spotlight');
+      void sec.offsetWidth; // restart the animation
+      sec.classList.add('spotlight');
+      setTimeout(() => sec.classList.remove('spotlight'), 2600);
+      // Move keyboard focus to the section heading for screen-reader users.
+      const h = sec.querySelector('.section-title, h2');
+      if (h) { h.setAttribute('tabindex', '-1'); setTimeout(() => h.focus({ preventScroll: true }), REDUCED_MOTION ? 0 : 600); }
+    }
+
+    guideOptions.addEventListener('click', async e => {
+      const btn = e.target.closest('[data-pick]');
+      if (!btn) return;
+      const pick = btn.dataset.pick;
+      try { sessionStorage.setItem('kc_guide_pick', pick); } catch (err) { }
+      const run = ++guideRun;
+      if (pick === 'close') { closeGuide(true); return; }
+      guideOptions.innerHTML = '';
+      const reply = pick === 'all' ? "Brilliant. Here's everything, starting from the top."
+        : pick === 'contact' ? "Great! Here's the quickest way to reach me."
+        : `Nice pick. Taking you to ${SECTION_INFO[pick].title} now.`;
+      await say(reply, '', run);
+      await wait(700);
+      if (run !== guideRun) return;
+      closeGuide(false);
+      if (pick === 'all') goToSection(sectionOrder[0]);
+      else goToSection(pick);
+    });
+
+    async function openGuide(replay) {
+      if (!guideCfg) return;
+      const run = ++guideRun;
+      guideLauncher.classList.remove('show');
+      guideLauncher.setAttribute('aria-expanded', 'true');
+      guideMsgs.innerHTML = '';
+      guideOptions.innerHTML = '';
+      guideEl.classList.add('open');
+      guideEl.focus({ preventScroll: true });
+      const greeting = guideCfg.greeting || "Hey, I'm Kingley 👋";
+      const intro = guideCfg.intro || 'I design and build across web, product UI, brand graphics and physical products.';
+      const question = guideCfg.question || 'To save you time, which of my skills are you here for?';
+      if (replay) {
+        // Returning visitor: skip straight to the question.
+        await say(greeting, 'hello', run) && await say(question, '', run);
+      } else {
+        await wait(250);
+        if (!(await say(greeting, 'hello', run))) return;
+        await wait(250);
+        if (!(await say(intro, '', run))) return;
+        await wait(300);
+        if (!(await say(question, '', run))) return;
+      }
+      if (run === guideRun) renderGuideOptions();
+    }
+
+    function closeGuide(returnFocus) {
+      guideRun++;
+      guideEl.classList.remove('open');
+      guideLauncher.setAttribute('aria-expanded', 'false');
+      guideLauncher.classList.add('show');
+      try { sessionStorage.setItem('kc_guide_seen', '1'); } catch (e) { }
+      if (returnFocus) guideLauncher.focus({ preventScroll: true });
+    }
+
+    document.getElementById('guideClose').addEventListener('click', () => closeGuide(true));
+    guideLauncher.addEventListener('click', () => openGuide(true));
+
+    async function initGuide(settings) {
+      const cfg = parseSetting(settings.guide, {});
+      if (cfg.enabled === false) return;
+      guideCfg = cfg;
+      const avatar = cfg.avatar || settings.profile_photo;
+      document.getElementById('guideAvatarSlot').innerHTML = guideAvatarHTML(avatar);
+      document.getElementById('guideLauncherAvatar').innerHTML = guideAvatarHTML(avatar);
+      let seen = false;
+      try { seen = sessionStorage.getItem('kc_guide_seen') === '1'; } catch (e) { }
+      // Wait for the name intro to finish, and don't interrupt deep links.
+      await introDone;
+      await wait(1500);
+      if (seen || location.hash.length > 1 || window.scrollY > window.innerHeight * 0.5) {
+        guideLauncher.classList.add('show');
+      } else {
+        openGuide(false);
+      }
+    }
+
     // ─── Init ────────────────────────────────────────────────────────────────────
     document.getElementById('footerYear').textContent = new Date().getFullYear();
+    settingsPromise.then(s => {
+      applySectionOrder(parseSetting(s.sections, {}));
+      initGuide(s);
+    });
     loadProjects();
     loadTestimonials();
     loadServices();
