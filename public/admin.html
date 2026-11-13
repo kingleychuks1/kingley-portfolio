@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
   <title>Admin — Kingley Portfolio</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
@@ -603,7 +604,13 @@
 
 <script>
   const ADMIN_KEY_STORE = 'portfolio_admin_key';
-  let adminKey = localStorage.getItem(ADMIN_KEY_STORE) || '';
+  // Session-only: the password is forgotten when the tab is closed.
+  try { localStorage.removeItem(ADMIN_KEY_STORE); } catch (e) {}
+  let adminKey = sessionStorage.getItem(ADMIN_KEY_STORE) || '';
+
+  function checkKey(key) {
+    return fetch('/api/auth', { method: 'POST', headers: { 'x-admin-key': key } }).then(r => r.ok);
+  }
   let editingProjectId = null;
   let allProjects = [];
 
@@ -612,11 +619,12 @@
     const pw = document.getElementById('passwordInput').value;
     if (!pw) return;
     adminKey = pw;
-    fetch('/api/projects', { headers: { 'x-admin-key': adminKey } })
-      .then(r => {
-        if (r.ok) { localStorage.setItem(ADMIN_KEY_STORE, adminKey); showAdmin(); }
-        else { document.getElementById('loginError').style.display = 'block'; }
-      }).catch(() => { document.getElementById('loginError').style.display = 'block'; });
+    document.getElementById('loginError').style.display = 'none';
+    checkKey(adminKey)
+      .then(ok => {
+        if (ok) { sessionStorage.setItem(ADMIN_KEY_STORE, adminKey); showAdmin(); }
+        else { adminKey = ''; document.getElementById('loginError').style.display = 'block'; }
+      }).catch(() => { adminKey = ''; document.getElementById('loginError').style.display = 'block'; });
   }
 
   document.getElementById('loginBtn').addEventListener('click', tryLogin);
@@ -624,8 +632,8 @@
 
   // Auto-login if key stored
   if (adminKey) {
-    fetch('/api/projects', { headers: { 'x-admin-key': adminKey } })
-      .then(r => { if (r.ok) showAdmin(); })
+    checkKey(adminKey)
+      .then(ok => { if (ok) showAdmin(); else sessionStorage.removeItem(ADMIN_KEY_STORE); })
       .catch(() => {});
   }
 
@@ -636,7 +644,7 @@
   }
 
   document.getElementById('logoutBtn').addEventListener('click', () => {
-    localStorage.removeItem(ADMIN_KEY_STORE);
+    sessionStorage.removeItem(ADMIN_KEY_STORE);
     adminKey = '';
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('adminShell').style.display = 'none';
@@ -669,8 +677,20 @@
     const opts = { method, headers: { 'x-admin-key': adminKey } };
     if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
     const r = await fetch(path, opts);
-    return r.json();
+    const data = await r.json().catch(() => ({}));
+    if (r.status === 401) {
+      sessionStorage.removeItem(ADMIN_KEY_STORE);
+      throw new Error('Session expired or wrong password. Please log in again.');
+    }
+    if (!r.ok) throw new Error(data.error || `Request failed (${r.status})`);
+    return data;
   }
+
+  // Any failed api() call that a handler did not catch shows an error toast
+  // (instead of the old behaviour of silently "succeeding").
+  window.addEventListener('unhandledrejection', e => {
+    toast((e.reason && e.reason.message) || 'Something went wrong', 'error');
+  });
 
   // ─── Toast ────────────────────────────────────────────────────────────────
   function toast(msg, type = 'success') {
@@ -708,13 +728,13 @@
         <tbody>
           ${projects.map(p => `
             <tr>
-              <td><img src="${p.thumbnail && !p.thumbnail.includes('placeholder') ? p.thumbnail : ''}" class="project-thumb" onerror="this.style.background='var(--surface2)';this.src='';" alt=""></td>
+              <td><img src="${p.thumbnail && !p.thumbnail.includes('placeholder') ? escAttr(p.thumbnail) : ''}" class="project-thumb" onerror="this.style.background='var(--surface2)';this.removeAttribute('src');" alt=""></td>
               <td>
-                <div style="font-weight:500">${p.title}</div>
-                <div style="font-size:0.75rem;color:var(--text-dim)">${p.subtitle || ''}</div>
+                <div style="font-weight:500">${escH(p.title)}</div>
+                <div style="font-size:0.75rem;color:var(--text-dim)">${escH(p.subtitle || '')}</div>
               </td>
-              <td><span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-dim)">${p.year || '—'}</span></td>
-              <td><div class="feat-toggle ${p.featured ? 'on' : ''}" data-id="${p.id}" onclick="toggleFeatured(this)"></div></td>
+              <td><span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-dim)">${escH(p.year || '—')}</span></td>
+              <td><div class="feat-toggle ${p.featured ? 'on' : ''}" data-id="${escAttr(p.id)}" onclick="toggleFeatured(this)" role="switch" tabindex="0" aria-checked="${!!p.featured}" aria-label="Featured" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFeatured(this);}"></div></td>
               <td><span style="font-family:var(--font-mono);font-size:0.8rem">${p.likeCount || 0}</span></td>
               <td>
                 <div class="table-actions">
@@ -735,8 +755,16 @@
     if (!project) return;
     const newVal = !el.classList.contains('on');
     el.classList.toggle('on', newVal);
-    await api('/api/projects?id=' + id, 'PUT', { ...project, featured: newVal });
-    toast(newVal ? 'Marked as featured' : 'Removed from featured');
+    el.setAttribute('aria-checked', String(newVal));
+    try {
+      await api('/api/projects?id=' + encodeURIComponent(id), 'PUT', { featured: newVal });
+      project.featured = newVal;
+      toast(newVal ? 'Marked as featured' : 'Removed from featured');
+    } catch (e) {
+      el.classList.toggle('on', !newVal);
+      el.setAttribute('aria-checked', String(!newVal));
+      toast(e.message, 'error');
+    }
   }
 
   async function deleteProject(id) {
@@ -842,6 +870,26 @@
     });
   }
 
+  // Upload one file: signed URL straight to Supabase Storage, falling back to
+  // the old base64 route for small files if signing is unavailable.
+  async function uploadFile(file, projectId) {
+    try {
+      const sign = await api('/api/upload', 'POST', { action: 'sign', filename: file.name, contentType: file.type });
+      const put = await fetch(sign.uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type || sign.contentType, 'x-upsert': 'false' },
+        body: file
+      });
+      if (!put.ok) throw new Error('Storage upload failed (' + put.status + ')');
+      return await api('/api/upload', 'POST', { action: 'attach', path: sign.path, projectId: projectId || undefined, filename: file.name });
+    } catch (err) {
+      if (/not allowed|log in again/i.test(err.message)) throw err;
+      if (file.size > 3 * 1024 * 1024) throw err;
+      const dataBase64 = await fileToBase64(file);
+      return api('/api/upload', 'POST', { filename: file.name, contentType: file.type, dataBase64, projectId: projectId || undefined });
+    }
+  }
+
   async function handleFiles(files) {
     if (!files.length) return;
     const projectId = document.getElementById('uploadProjectSelect').value;
@@ -857,19 +905,7 @@
     for (const file of arr) {
       status.textContent = `Uploading ${done + 1} of ${arr.length}: ${file.name}`;
       try {
-        const dataBase64 = await fileToBase64(file);
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
-          body: JSON.stringify({
-            filename: file.name,
-            contentType: file.type,
-            dataBase64,
-            projectId: projectId || undefined
-          })
-        });
-        if (!res.ok) throw new Error('upload failed');
-        const data = await res.json();
+        const data = await uploadFile(file, projectId);
         const url = data.url;
         const isVideo = /\.(mp4|webm|mov)$/i.test(url) || /video/.test(file.type);
         if (isVideo) {
@@ -883,7 +919,7 @@
         }
         uploaded++;
       } catch (e) {
-        toast(`Failed: ${file.name}`, 'error');
+        toast(`Failed: ${file.name} — ${e.message}`, 'error');
       }
       done++;
       fill.style.width = ((done / arr.length) * 100) + '%';
@@ -920,13 +956,7 @@
     if (!file || !file.name.toLowerCase().endsWith('.pdf')) { toast('Please upload a PDF file', 'error'); return; }
     toast('Uploading CV...');
     try {
-      const dataBase64 = await fileToBase64(file);
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
-        body: JSON.stringify({ filename: file.name, contentType: 'application/pdf', dataBase64 })
-      });
-      const data = await res.json();
+      const data = await uploadFile(file);
       if (!data.url) throw new Error('no url');
       // Save URL to settings
       await api('/api/settings', 'POST', { key: 'cv_url', value: data.url });
@@ -934,7 +964,7 @@
       document.getElementById('cvFileName').textContent = file.name;
       document.getElementById('cvFileDate').textContent = 'Uploaded just now';
     } catch (e) {
-      toast('CV upload failed', 'error');
+      toast('CV upload failed — ' + e.message, 'error');
     }
   }
 
@@ -957,20 +987,14 @@
     if (!file || !file.type.startsWith('image/')) { toast('Please upload an image', 'error'); return; }
     toast('Uploading photo...');
     try {
-      const dataBase64 = await fileToBase64(file);
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
-        body: JSON.stringify({ filename: file.name, contentType: file.type, dataBase64 })
-      });
-      const data = await res.json();
+      const data = await uploadFile(file);
       if (!data.url) throw new Error('no url');
       await api('/api/settings', 'POST', { key: 'profile_photo', value: data.url });
       toast('Profile photo updated ✓');
       document.getElementById('photoFileName').textContent = 'Photo is live';
       document.getElementById('photoFileDate').textContent = 'Uploaded just now';
     } catch (e) {
-      toast('Photo upload failed', 'error');
+      toast('Photo upload failed — ' + e.message, 'error');
     }
   }
 
@@ -1003,17 +1027,23 @@
     const data = await api('/api/reviews?all=true');
     const reviews = data.reviews || [];
     if (!reviews.length) { el.innerHTML = '<div class="empty-msg">No reviews yet.</div>'; return; }
-    el.innerHTML = reviews.reverse().map(r => {
+    // Pending reviews first, then newest first (API order).
+    reviews.sort((a, b) => (a.approved === b.approved ? 0 : a.approved ? 1 : -1));
+    el.innerHTML = reviews.map(r => {
       const project = allProjects.find(p => p.id === r.projectId);
+      const rating = Math.min(5, Math.max(1, parseInt(r.rating) || 5));
       return `
-        <div class="review-row">
+        <div class="review-row" style="${r.approved ? '' : 'border-color: var(--graphics);'}">
           <div class="review-row-info">
-            <div class="review-row-project">${project ? '[' + project.category + '] ' + project.title : r.projectId}</div>
-            <div class="review-row-name">${escH(r.name)} <span class="review-row-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span></div>
+            <div class="review-row-project">${r.approved ? '' : '<strong style="color:var(--graphics)">PENDING · </strong>'}${escH(project ? '[' + project.category + '] ' + project.title : r.projectId)}</div>
+            <div class="review-row-name">${escH(r.name)} <span class="review-row-stars">${'★'.repeat(rating)}${'☆'.repeat(5-rating)}</span></div>
             <div class="review-row-text">${escH(r.message)}</div>
             <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--text-dim);margin-top:6px;">${new Date(r.createdAt).toLocaleString()}</div>
           </div>
-          <button class="btn-sm btn-del btn" onclick="deleteReview('${r.id}')">Delete</button>
+          <div class="table-actions">
+            <button class="btn-sm btn-edit btn" onclick="setReviewApproved('${escAttr(r.id)}', ${!r.approved})">${r.approved ? 'Hide' : 'Approve'}</button>
+            <button class="btn-sm btn-del btn" onclick="deleteReview('${escAttr(r.id)}')">Delete</button>
+          </div>
         </div>
       `;
     }).join('');
@@ -1026,7 +1056,13 @@
     loadAllReviews();
   }
 
-  function escH(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  async function setReviewApproved(id, approved) {
+    await api('/api/reviews?id=' + encodeURIComponent(id), 'PUT', { approved });
+    toast(approved ? 'Review approved — now live' : 'Review hidden');
+    loadAllReviews();
+  }
+
+  function escH(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
   // ─── Testimonials ────────────────────────────────────────────────────────
   let editingTestimonialId = null;
@@ -1038,6 +1074,7 @@
       const data = await api('/api/testimonials');
       const items = data.testimonials || [];
       if (!items.length) { el.innerHTML = '<div class="empty-msg">No testimonials yet. Add your first one!</div>'; return; }
+      testimonialsCache = items;
       el.innerHTML = items.map(t => `
         <div class="review-row">
           <div class="review-row-info">
@@ -1046,8 +1083,8 @@
             <div class="review-row-text">${escH(t.message)}</div>
           </div>
           <div class="table-actions">
-            <button class="btn-sm btn-edit btn" onclick='editTestimonial(${JSON.stringify(JSON.stringify(t))})'>Edit</button>
-            <button class="btn-sm btn-del btn" onclick="deleteTestimonial('${t.id}')">Delete</button>
+            <button class="btn-sm btn-edit btn" onclick="editTestimonial('${escAttr(t.id)}')">Edit</button>
+            <button class="btn-sm btn-del btn" onclick="deleteTestimonial('${escAttr(t.id)}')">Delete</button>
           </div>
         </div>
       `).join('');
@@ -1063,8 +1100,11 @@
     document.getElementById('testimonialFormOverlay').classList.add('open');
   }
 
-  function editTestimonial(json) {
-    const t = JSON.parse(json);
+  let testimonialsCache = [];
+
+  function editTestimonial(id) {
+    const t = testimonialsCache.find(x => x.id === id);
+    if (!t) return;
     editingTestimonialId = t.id;
     document.getElementById('tFormTitle').textContent = 'Edit Testimonial';
     document.getElementById('tName').value = t.name || '';
