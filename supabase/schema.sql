@@ -28,6 +28,7 @@ create table if not exists reviews (
   name        text not null,
   message     text not null,
   rating      int  default 5 check (rating between 1 and 5),
+  approved    boolean not null default false, -- shown on the site only once approved in /admin
   created_at  timestamptz default now()
 );
 
@@ -66,9 +67,9 @@ create index if not exists idx_likes_project on likes(project_id);
 
 -- ════════════════════════════════════════════════════════════════════════
 -- ROW LEVEL SECURITY
--- Public can READ projects/reviews/likes/settings and INSERT reviews/likes.
--- All writes to projects + deletes are done server-side with the SERVICE
--- ROLE key (bypasses RLS), so no admin policy is needed here.
+-- Public can READ projects, approved reviews, settings and testimonials.
+-- Every write goes through /api with the SERVICE ROLE key (bypasses RLS),
+-- so the public (anon) role gets no write policies at all.
 -- ════════════════════════════════════════════════════════════════════════
 alter table projects enable row level security;
 alter table reviews  enable row level security;
@@ -78,15 +79,9 @@ alter table testimonials enable row level security;
 
 -- Public read
 create policy "public read projects" on projects for select using (true);
-create policy "public read reviews"  on reviews  for select using (true);
-create policy "public read likes"    on likes    for select using (true);
+create policy "public read reviews"  on reviews  for select using (approved);
 create policy "public read settings" on settings for select using (true);
 create policy "public read testimonials" on testimonials for select using (true);
-
--- Public can post reviews + toggle likes
-create policy "public insert reviews" on reviews for insert with check (true);
-create policy "public insert likes"   on likes   for insert with check (true);
-create policy "public delete likes"   on likes   for delete using (true);
 
 -- ════════════════════════════════════════════════════════════════════════
 -- STORAGE BUCKET (run after creating tables)
