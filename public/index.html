@@ -4077,7 +4077,9 @@
       guideMsgs.innerHTML = '';
       guideOptions.innerHTML = '';
       guideEl.classList.add('open');
-      guideEl.focus({ preventScroll: true });
+      // Only take focus when the visitor asked for the guide; an automatic
+      // greeting must not pull focus away from what they're doing.
+      if (replay) guideEl.focus({ preventScroll: true });
       const greeting = guideCfg.greeting || "Hey, I'm Kingley 👋";
       const intro = guideCfg.intro || 'I design and build across web, product UI, brand graphics and physical products.';
       const question = guideCfg.question || 'To save you time, which of my skills are you here for?';
@@ -4119,7 +4121,8 @@
       // Wait for the name intro to finish, and don't interrupt deep links.
       await introDone;
       await wait(1500);
-      if (seen || location.hash.length > 1 || window.scrollY > window.innerHeight * 0.5) {
+      const busy = overlay.classList.contains('open') || mobileNav.classList.contains('open');
+      if (seen || busy || location.hash.length > 1 || window.scrollY > window.innerHeight * 0.5) {
         guideLauncher.classList.add('show');
       } else {
         openGuide(false);
