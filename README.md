@@ -8,21 +8,27 @@ A bold plum/coral portfolio inspired by gymduoo.com, with five discipline sectio
 
 ```
 kingley-portfolio/
-├── api/
-│   ├── index.js        ← Vercel serverless entry (wraps the Express app)
-│   └── server.js       ← All API logic (projects, likes, reviews, uploads, settings)
+├── api/                    ← Vercel serverless functions (one file per route)
+│   ├── _supabase.js        ← Shared Supabase client, admin check, CORS
+│   ├── auth.js             ← Admin password check
+│   ├── projects.js         ← Projects CRUD
+│   ├── likes.js            ← Like counts / toggle
+│   ├── reviews.js          ← Visitor reviews (moderated)
+│   ├── testimonials.js     ← Curated testimonials
+│   ├── settings.js         ← CV URL, profile photo, theme, services
+│   └── upload.js           ← Signed uploads to Supabase Storage
 ├── public/
-│   ├── index.html      ← The portfolio site
-│   ├── admin.html      ← Password-protected CMS
-│   └── assets/         ← Static images, icons, fallback CV
+│   ├── index.html          ← The portfolio site
+│   ├── admin.html          ← Password-protected CMS (served at /admin)
+│   ├── robots.txt / sitemap.xml
+│   └── assets/images/      ← Favicon + social share image
 ├── supabase/
-│   └── schema.sql      ← Run this once in Supabase to create tables + seed data
-├── vercel.json         ← Routes /api/* to the function, serves public/ statically
+│   ├── schema.sql          ← Full schema for a new project
+│   └── migrations/         ← One-off SQL to bring an existing project up to date
+├── vercel.json             ← Function config, /admin rewrite, security headers
 ├── package.json
-└── .env.example        ← Copy to .env for local dev
+└── .env.example            ← Copy to .env.local for local dev
 ```
-
-Clean split: **`/api`** is the backend, **`/public`** is everything the browser sees, **`/supabase`** holds your one-time database setup.
 
 ---
 
@@ -67,9 +73,10 @@ Clean split: **`/api`** is the backend, **`/public`** is everything the browser 
 
 ## 🔌 How it works on Vercel
 
-- **`vercel.json`** rewrites every `/api/*` request to `api/index.js`, which exports the Express app. Vercel runs it as a single serverless function (Node runtime, 30s max duration).
+- Each file in **`/api`** is its own Vercel serverless function (Node runtime, 30s max duration). **`vercel.json`** adds the `/admin` rewrite and security headers.
 - **Static files** in `/public` are served directly by Vercel's CDN.
-- **Uploads** are sent to the function as base64 JSON, then streamed into the Supabase `media` bucket — Vercel's filesystem is ephemeral, so nothing is stored on the function itself.
+- **Uploads** go straight from the admin page to the Supabase `media` bucket using a one-time signed URL from `/api/upload`, so large images and videos are not limited by Vercel's 4.5 MB request cap.
+- **Reviews** posted by visitors are held as *pending* until you approve them in **Admin → Reviews**.
 - **Likes / reviews / projects** all live in Supabase Postgres, so they persist and are shared across all visitors.
 
 ---
@@ -78,11 +85,12 @@ Clean split: **`/api`** is the backend, **`/public`** is everything the browser 
 
 ```bash
 npm install
-cp .env.example .env     # fill in your Supabase keys + admin password
-npm run dev
+npm i -g vercel           # once
+cp .env.example .env.local   # fill in your Supabase keys + admin password
+vercel dev                # or: npm run local
 ```
 
-Site: `http://localhost:3001` · Admin: `http://localhost:3001/admin`
+Site: `http://localhost:3000` · Admin: `http://localhost:3000/admin`
 
 ---
 
@@ -90,15 +98,17 @@ Site: `http://localhost:3001` · Admin: `http://localhost:3001/admin`
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| GET | `/api/projects` `?category=` `?featured=true` `?id=` | List / filter / fetch projects |
+| POST | `/api/auth` 🔒 | Check the admin password |
+| GET | `/api/projects` `?category=` `?featured=true` | List / filter projects |
 | POST | `/api/projects` 🔒 | Create project |
 | PUT | `/api/projects?id=` 🔒 | Update project |
 | DELETE | `/api/projects?id=` 🔒 | Delete project |
-| POST | `/api/upload` 🔒 | Upload media/CV/photo (base64) → `{url}` |
+| POST | `/api/upload` 🔒 | `{action:'sign'}` → signed upload URL; `{action:'attach'}` → public `{url}` |
 | GET / POST | `/api/settings?key=` / `{key,value}` 🔒 | Read/write CV URL, profile photo |
 | GET / POST | `/api/likes?projectId=` | Get count / toggle like |
-| GET | `/api/reviews?projectId=` `?all=true`🔒 | List reviews |
-| POST | `/api/reviews?projectId=` | Post a review |
+| GET | `/api/reviews?projectId=` `?all=true`🔒 | List approved reviews (all, incl. pending, for admin) |
+| POST | `/api/reviews?projectId=` | Post a review (held for approval) |
+| PUT | `/api/reviews?id=` 🔒 | Approve / hide a review |
 | DELETE | `/api/reviews?id=` 🔒 | Delete a review |
 | GET | `/api/testimonials` | List curated testimonials |
 | POST | `/api/testimonials` 🔒 | Add testimonial |
@@ -111,8 +121,8 @@ Site: `http://localhost:3001` · Admin: `http://localhost:3001/admin`
 
 ## 🔧 Before going live
 
-- [ ] Set a strong `ADMIN_PASSWORD` in Vercel.
-- [ ] Replace the email in `index.html` (`hello@kingley.design`) with your real one.
+- [ ] Set a strong `ADMIN_PASSWORD` in Vercel (Production **and** Preview). There is no fallback password: if it is unset, the admin panel stays locked.
+- [ ] Run `supabase/migrations/2026-11-13-moderation-and-rls.sql` once on an existing database.
 - [ ] Confirm your LinkedIn URL.
 - [ ] Upload CV, profile photo, and real project media via the admin panel.
 - [ ] (Optional) Add a custom domain in Vercel → Settings → Domains once you buy one.

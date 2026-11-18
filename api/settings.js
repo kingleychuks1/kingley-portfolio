@@ -1,7 +1,7 @@
 const { supabase, isAdmin, setCors, requireDB } = require('./_supabase');
 
 module.exports = async (req, res) => {
-  setCors(res);
+  setCors(res, req);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (requireDB(res)) return;
 

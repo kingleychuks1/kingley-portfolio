@@ -1,7 +1,7 @@
 const { supabase, isAdmin, setCors, requireDB } = require('./_supabase');
 
 module.exports = async (req, res) => {
-  setCors(res);
+  setCors(res, req);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (requireDB(res)) return;
 
@@ -28,7 +28,8 @@ module.exports = async (req, res) => {
     // ─── POST: create (admin) ─────────────────────────────────────────────
     if (req.method === 'POST') {
       if (!isAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
-      const body = req.body;
+      const body = req.body || {};
+      if (!body.category || !body.title) return res.status(400).json({ error: 'category and title required' });
       const id = `${body.category}-${Math.random().toString(36).slice(2, 8)}`;
       const { data, error } = await supabase.from('projects').insert({
         id,
@@ -52,8 +53,13 @@ module.exports = async (req, res) => {
     if (req.method === 'PUT') {
       if (!isAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
       const id = req.query.id;
-      const body = { ...req.body };
-      delete body.id; delete body.likeCount; delete body.created_at;
+      if (!id) return res.status(400).json({ error: 'id required' });
+      const src = req.body || {}, body = {};
+      // Only known columns can be updated.
+      ['category', 'title', 'subtitle', 'description', 'tags', 'thumbnail', 'media',
+        'colors', 'year', 'link', 'featured', 'sort_order'].forEach(k => {
+        if (src[k] !== undefined) body[k] = src[k];
+      });
       const { data, error } = await supabase.from('projects').update(body).eq('id', id).select().single();
       if (error) throw error;
       return res.status(200).json(data);

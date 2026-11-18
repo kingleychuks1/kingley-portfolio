@@ -1,7 +1,7 @@
 const { supabase, setCors, requireDB } = require('./_supabase');
 
 module.exports = async (req, res) => {
-  setCors(res);
+  setCors(res, req);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (requireDB(res)) return;
 
@@ -18,7 +18,8 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === 'POST') {
-      const visitorId = (req.body && req.body.visitorId) || 'anon';
+      const visitorId = String((req.body && req.body.visitorId) || '');
+      if (!/^v_[a-z0-9]{6,32}$/i.test(visitorId)) return res.status(400).json({ error: 'visitorId required' });
 
       // Check existing
       const { data: existing } = await supabase
@@ -27,10 +28,12 @@ module.exports = async (req, res) => {
 
       let liked;
       if (existing) {
-        await supabase.from('likes').delete().eq('id', existing.id);
+        const { error } = await supabase.from('likes').delete().eq('id', existing.id);
+        if (error) throw error;
         liked = false;
       } else {
-        await supabase.from('likes').insert({ project_id: projectId, visitor_id: visitorId });
+        const { error } = await supabase.from('likes').insert({ project_id: projectId, visitor_id: visitorId });
+        if (error) throw error;
         liked = true;
       }
 
