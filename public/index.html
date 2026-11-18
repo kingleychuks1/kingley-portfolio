@@ -1306,39 +1306,27 @@
     /* Flex-wrap instead of auto-fill grid: rows always fill the width,
        so 2 cards share a row and a lone last card stretches instead of
        leaving empty columns. */
+    /* Every card is the same size: 3 columns on desktop, 2 on tablet, 1 on phones. */
     .projects-grid {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 16px;
     }
 
+    @media (max-width: 1100px) {
+      .projects-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      .projects-grid { grid-template-columns: 1fr; }
+    }
+
     .projects-grid > .card {
-      flex: 1 1 340px;
       min-width: 0;
     }
 
     .projects-grid > .empty-state {
-      flex: 1 1 100%;
-    }
-
-    /* Featured layout (exactly 3 projects, set from JS): one large card on the
-       left, two stacked on the right — always a full 2×2 block. */
-    @media (min-width: 901px) {
-      .projects-grid.featured {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-      }
-
-      .projects-grid.featured > .card:first-child {
-        grid-row: span 2;
-      }
-
-      .projects-grid.featured > .card:first-child .card-media {
-        aspect-ratio: auto;
-        max-height: none;
-        flex: 1;
-        min-height: 280px;
-      }
+      grid-column: 1 / -1;
     }
 
     .card {
@@ -1368,7 +1356,6 @@
     .card-media {
       position: relative;
       aspect-ratio: 16 / 10;
-      max-height: 340px;
       overflow: hidden;
       background: var(--surface2);
     }
@@ -1377,13 +1364,13 @@
     .card-media video {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain; /* show the whole image, never crop it */
       transition: transform 0.6s var(--transition);
     }
 
     .card:hover .card-media img,
     .card:hover .card-media video {
-      transform: scale(1.04);
+      transform: scale(1.02);
     }
 
     .card-media-placeholder {
@@ -3134,7 +3121,7 @@
       <p class="section-desc">End-to-end products — from database schema to pixel-perfect UI. React, Next.js, Node,
         APIs, and mobile.</p>
     </div>
-    <div class="projects-grid" id="webdev-grid" data-featured="true">
+    <div class="projects-grid" id="webdev-grid">
       <div class="empty-state skeleton" style="height: 300px; border-radius: var(--radius);"></div>
     </div>
   </section>
@@ -3607,7 +3594,6 @@
       projects = projects.map((p, i) => [p, i]).sort((a, b) => score(b[0]) - score(a[0]) || a[1] - b[1]).map(x => x[0]);
       grid.innerHTML = projects.map(p => buildCard(p)).join('');
       // Big-card layout only when it fills a clean 2×2 block (exactly 3 cards).
-      if (grid.dataset.featured === 'true') grid.classList.toggle('featured', projects.length === 3);
       grid.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     }
 
